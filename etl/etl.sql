@@ -288,3 +288,30 @@ select
 from ranked_pairs
 where rank <= 100;
 
+create index x_similar_name__name on similar_name (name);
+create index x_similar_name__distance on similar_name (distance);
+
+-- =============================================================================
+-- analysis
+
+create or replace macro show_name_history(n) as table
+  select
+    year,
+    popularity_f,
+    popularity_m,
+  from name_year
+  join name on name.id = name_year.name
+  where name.name = n
+  order by year desc;
+
+create or replace macro show_similar_names(n) as table
+  select
+    b.name,
+    similar_name.distance
+  from similar_name
+  join name a on a.id = similar_name.name
+  join name b on b.id = similar_name.similar_name
+  where a.name = n
+  order by similar_name.distance;
+
+
