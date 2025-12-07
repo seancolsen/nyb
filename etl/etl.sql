@@ -1,3 +1,22 @@
+-- =============================================================================
+-- import
+
+create temporary table import (
+  year integer,
+  name text,
+  gender text,
+  count integer
+);
+
+-- Load data from unified CSV file
+INSERT INTO import (year, name, gender, count)
+SELECT year, name, gender, count
+FROM read_csv(
+  'source-data/unified.csv',
+  header=false,
+  columns={year: 'INTEGER', name: 'TEXT', gender: 'TEXT', count: 'INTEGER'}
+);
+
 update import
 set name = 'Unknown'
 where name in (
@@ -8,7 +27,7 @@ where name in (
   'Baby',
   'Child',
   'Boy',
-  'Girl'
+  'Girl',
   'Babyboy',
   'Babygirl'
 );
@@ -34,7 +53,7 @@ create or replace sequence data_point_id_seq;
 create or replace temporary table data_point (
   id int primary key default nextval('data_point_id_seq'),
   year short,
-  name int references name(id),
+  name int, -- implicit FK to name(id),
   gender gender,
   count int
 );
