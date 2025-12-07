@@ -39,7 +39,14 @@ where name in (
 create or replace sequence name_seq;
 create or replace table name (
   id int primary key default nextval('name_seq'),
-  name text unique
+  name text unique,
+  -- A 40-dimensional vector of floats used for vector similarity and chart
+  -- visualization.
+  -- 
+  -- The first 20 values are `popularity_f` values, averaged over 5-year windows
+  -- for the past 100 years. The remaining 20 values are `popularity_m` values,
+  -- averaged over 5-year windows for the past 100 years.
+  shape float[40],
 );
 insert into name (name) select distinct name from import;
 create index x_name__name on name (name);
@@ -71,7 +78,7 @@ insert into data_point (year, name, gender, count)
 -- name_year
 
 create or replace table name_year (
-  name int not null references name (id),
+  name int not null, -- implicit FK to name(id),
   year short not null,
   count_both int, 
   count_f int, 
@@ -186,4 +193,54 @@ create index x_name_year__popularity_both on name_year (popularity_both);
 create index x_name_year__popularity_f on name_year (popularity_f);
 create index x_name_year__popularity_m on name_year (popularity_m);
 
+
+-- =============================================================================
+-- name shape
+
+-- Calculate shape vector for each name The shape is a 40-element vector: 20
+-- popularity_f averages + 20 popularity_m averages Each value represents the
+-- average popularity over a 5-year window for the past 100 years
+
+create or replace temporary function year_bucket(year int, max_year int) as
+  year + (max_year - year) % 5;
+
+update name as t set shape = s.shape from (
+  with
+    max_year as ( select max(year) as v from name_year ),
+    name_year_values as (
+      select
+        name,
+        year_bucket(year, (select v from max_year)) as bucket,
+        popularity_f as f,
+        popularity_m as m,
+      from name_year
+      where year >= (select v from max_year) - 100
+    ),
+    name_buckets as (
+      select
+        name,
+        bucket,
+        avg(f) as f,
+        avg(m) as m,
+      from name_year_values
+      group by name, bucket
+    ),
+    all_buckets as (
+      select unnest(range(
+        (select v from max_year) - 95,
+        (select v from max_year) + 1,
+        5
+      )) as bucket
+    )
+  select
+    name.id,
+    array_agg(coalesce(name_buckets.f, 0.0) order by all_buckets.bucket) ||
+    array_agg(coalesce(name_buckets.m, 0.0) order by all_buckets.bucket) as shape,
+  from all_buckets
+  cross join name
+  left join name_buckets on
+    name_buckets.name = name.id and
+    name_buckets.bucket = all_buckets.bucket
+  group by name.id
+) as s where t.id = s.id;
 
