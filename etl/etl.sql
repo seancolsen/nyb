@@ -244,3 +244,47 @@ update name as t set shape = s.shape from (
   group by name.id
 ) as s where t.id = s.id;
 
+-- =============================================================================
+-- similar names
+
+create or replace table similar_name (
+  name int not null, -- implicit FK to name(id),
+  similar_name int not null, -- implicit FK to name(id),
+  distance real not null,
+  primary key (name, similar_name),
+);
+
+insert into similar_name by name
+with
+  candidates as (
+    select distinct name as id
+    from name_year
+    -- Candidate names must have a year where popularity is at least 0.1
+    where popularity_both > 0.1
+  ),
+  pairs as (
+    select
+      a.id as a,
+      b.id as b,
+      array_distance(a.shape, b.shape) as dist
+    from candidates ca
+    cross join candidates cb
+    join name a on a.id = ca.id
+    join name b on b.id = cb.id
+    where a.id <> b.id
+  ),
+  ranked_pairs as (
+    select
+      a,
+      b,
+      dist,
+      row_number() over (partition by a order by dist) as rank
+    from pairs
+  )
+select
+  a as name,
+  b as similar_name,
+  dist as distance
+from ranked_pairs
+where rank <= 100;
+
