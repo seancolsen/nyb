@@ -1,14 +1,14 @@
 use axum::Router;
 use clap::Parser;
-use qubit::handler;
 use frozen_duckdb::Connection;
+use qubit::handler;
 use qubit::server::Router as QubitRouter;
 use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
+use tracing_subscriber::{EnvFilter, fmt};
 use ts_rs::TS;
-use tracing_subscriber::{fmt, EnvFilter};
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -47,14 +47,9 @@ async fn get_name(state: AppState, request: GetNameRequest) -> GetNameResponse {
     "#;
 
     let db = state.db.lock().unwrap();
-    let mut stmt = match db.prepare(query) {
-        Ok(stmt) => stmt,
-        Err(_) => return GetNameResponse { result: None },
-    };
+    let mut stmt = db.prepare(query).unwrap();
 
-    let result: Option<i64> = stmt
-        .query_row([&request.name], |row| Ok(row.get(0)?))
-        .ok();
+    let result: Option<i64> = stmt.query_row([&request.name], |row| Ok(row.get(0)?)).ok();
 
     GetNameResponse { result }
 }
@@ -80,7 +75,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_file(true)
         .with_line_number(true)
         .init();
-    
+
     let args = Args::parse();
 
     // Connect to DuckDB
@@ -93,8 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = find_available_port(args.port);
 
     // Create qubit router
-    let qubit_router = QubitRouter::new()
-        .handler(get_name);
+    let qubit_router = QubitRouter::new().handler(get_name);
 
     // Convert qubit router to Axum service
     let (qubit_service, _qubit_handle) = qubit_router.to_service(state);
