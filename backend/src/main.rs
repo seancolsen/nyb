@@ -1,13 +1,14 @@
 use axum::Router;
 use clap::Parser;
 use qubit::handler;
-use frozen_duckdb::Database;
+use frozen_duckdb::Connection;
 use qubit::server::Router as QubitRouter;
 use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
 use ts_rs::TS;
+use tracing_subscriber::{fmt, EnvFilter};
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -21,7 +22,7 @@ struct Args {
 
 #[derive(Clone)]
 struct AppState {
-    db: Arc<Mutex<Database>>,
+    db: Arc<Mutex<Connection>>,
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -70,10 +71,20 @@ fn find_available_port(start_port: u16) -> u16 {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Enable structured logging with file/line info; default to verbose qubit/jsonrpsee
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new("info,jsonrpsee=trace,qubit=trace"));
+    fmt()
+        .with_env_filter(filter)
+        .with_span_events(fmt::format::FmtSpan::FULL)
+        .with_file(true)
+        .with_line_number(true)
+        .init();
+    
     let args = Args::parse();
 
     // Connect to DuckDB
-    let db = Database::open(&args.db_path)?;
+    let db = Connection::open(&args.db_path)?;
     let state = AppState {
         db: Arc::new(Mutex::new(db)),
     };
