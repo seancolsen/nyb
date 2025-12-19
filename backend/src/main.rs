@@ -1,14 +1,15 @@
+mod api;
+
 use axum::Router;
 use clap::Parser;
 use frozen_duckdb::Connection;
-use qubit::handler;
 use qubit::server::Router as QubitRouter;
-use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
 use tracing_subscriber::{EnvFilter, fmt};
-use ts_rs::TS;
+
+use api::get_name;
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -21,37 +22,8 @@ struct Args {
 }
 
 #[derive(Clone)]
-struct AppState {
-    db: Arc<Mutex<Connection>>,
-}
-
-#[derive(Deserialize, Serialize, TS)]
-#[ts(export)]
-struct GetNameRequest {
-    name: String,
-}
-
-#[derive(Clone, Serialize, TS)]
-#[ts(export)]
-struct GetNameResponse {
-    result: Option<i64>,
-}
-
-#[handler(query)]
-async fn get_name(state: AppState, request: GetNameRequest) -> GetNameResponse {
-    let query = r#"
-        SELECT max(count_both)
-        FROM name_year
-        JOIN name on name.id = name_year.name
-        WHERE name.name = ?
-    "#;
-
-    let db = state.db.lock().unwrap();
-    let mut stmt = db.prepare(query).unwrap();
-
-    let result: Option<i64> = stmt.query_row([&request.name], |row| Ok(row.get(0)?)).ok();
-
-    GetNameResponse { result }
+pub struct AppState {
+    pub db: Arc<Mutex<Connection>>,
 }
 
 fn find_available_port(start_port: u16) -> u16 {
