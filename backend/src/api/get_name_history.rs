@@ -10,9 +10,9 @@ pub struct GetNameHistoryRequest {
     pub name: String,
 }
 
-#[derive(Clone, Serialize, TS)]
+#[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
-pub struct GetNameHistoryResponse {
+pub struct NameHistoryData {
     pub count_both: Vec<i64>,
     pub count_f: Vec<i64>,
     pub count_m: Vec<i64>,
@@ -22,6 +22,13 @@ pub struct GetNameHistoryResponse {
     pub popularity_both: Vec<f64>,
     pub popularity_f: Vec<f64>,
     pub popularity_m: Vec<f64>,
+}
+
+#[derive(Clone, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub enum GetNameHistoryResponse {
+    NameHistory(NameHistoryData),
+    NameNotFound,
 }
 
 #[handler(query)]
@@ -70,7 +77,12 @@ pub async fn get_name_history(
         .collect::<Result<Vec<_>, _>>()
         .unwrap();
 
-    // Find the maximum year, defaulting to 1880 if no rows
+    // Return error if name is not found
+    if rows.is_empty() {
+        return GetNameHistoryResponse::NameNotFound;
+    }
+
+    // Find the maximum year
     let max_year = rows
         .iter()
         .map(|(year, _, _, _, _, _, _, _, _, _)| *year)
@@ -122,7 +134,7 @@ pub async fn get_name_history(
         }
     }
 
-    GetNameHistoryResponse {
+    GetNameHistoryResponse::NameHistory(NameHistoryData {
         count_both,
         count_f,
         count_m,
@@ -132,5 +144,5 @@ pub async fn get_name_history(
         popularity_both,
         popularity_f,
         popularity_m,
-    }
+    })
 }
