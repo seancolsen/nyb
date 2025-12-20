@@ -13,7 +13,6 @@ pub struct GetNameHistoryRequest {
 #[derive(Clone, Serialize, TS)]
 #[ts(export)]
 pub struct GetNameHistoryResponse {
-    pub year: Vec<i32>,
     pub count_both: Vec<i64>,
     pub count_f: Vec<i64>,
     pub count_m: Vec<i64>,
@@ -88,7 +87,6 @@ pub async fn get_name_history(
             .collect();
 
     // Build arrays, filling gaps with zeros
-    let mut year = Vec::new();
     let mut count_both = Vec::new();
     let mut count_f = Vec::new();
     let mut count_m = Vec::new();
@@ -100,7 +98,6 @@ pub async fn get_name_history(
     let mut popularity_m = Vec::new();
 
     for y in min_year..=max_year {
-        year.push(y);
         if let Some((cb, cf, cm, drb, drf, drm, pb, pf, pm)) = year_data.get(&y) {
             count_both.push(*cb);
             count_f.push(*cf);
@@ -126,7 +123,6 @@ pub async fn get_name_history(
     }
 
     GetNameHistoryResponse {
-        year,
         count_both,
         count_f,
         count_m,
