@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
 use tracing_subscriber::{EnvFilter, fmt};
 
-use api::get_name;
+use api::get_name_history;
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = find_available_port(args.port);
 
     // Create qubit router
-    let qubit_router = QubitRouter::new().handler(get_name);
+    let qubit_router = QubitRouter::new().handler(get_name_history);
 
     // Convert qubit router to Axum service
     let (qubit_service, _qubit_handle) = qubit_router.to_service(state);

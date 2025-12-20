@@ -1,4 +1,3 @@
-pub mod get_name;
+pub mod get_name_history;
 
-pub use get_name::*;
-
+pub use get_name_history::*;
