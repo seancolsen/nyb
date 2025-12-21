@@ -8,7 +8,6 @@ use qubit::server::Router as QubitRouter;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
-use tracing_subscriber::{EnvFilter, fmt};
 
 use api::get_name_history;
 
@@ -39,16 +38,6 @@ fn find_available_port(start_port: u16) -> u16 {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Enable structured logging with file/line info; default to verbose qubit/jsonrpsee
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info,jsonrpsee=trace,qubit=trace"));
-    fmt()
-        .with_env_filter(filter)
-        .with_span_events(fmt::format::FmtSpan::FULL)
-        .with_file(true)
-        .with_line_number(true)
-        .init();
-
     let args = Args::parse();
 
     // Connect to DuckDB
