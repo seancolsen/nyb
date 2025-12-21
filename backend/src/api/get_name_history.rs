@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::AppState;
+use crate::constants::{MIN_YEAR, NUM_YEARS};
 
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export)]
@@ -13,29 +14,22 @@ pub struct GetNameHistoryRequest {
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct NameHistoryData {
-    pub count_both: Vec<i64>,
-    pub count_f: Vec<i64>,
-    pub count_m: Vec<i64>,
-    pub dense_rank_both: Vec<i64>,
-    pub dense_rank_f: Vec<i64>,
-    pub dense_rank_m: Vec<i64>,
+    pub count_both: Vec<u64>,
+    pub count_f: Vec<u64>,
+    pub count_m: Vec<u64>,
+    pub dense_rank_both: Vec<u64>,
+    pub dense_rank_f: Vec<u64>,
+    pub dense_rank_m: Vec<u64>,
     pub popularity_both: Vec<f64>,
     pub popularity_f: Vec<f64>,
     pub popularity_m: Vec<f64>,
-}
-
-#[derive(Clone, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub enum GetNameHistoryResponse {
-    NameHistory(NameHistoryData),
-    NameNotFound,
 }
 
 #[handler(query)]
 pub async fn get_name_history(
     state: AppState,
     request: GetNameHistoryRequest,
-) -> GetNameHistoryResponse {
+) -> Result<NameHistoryData, String> {
     let query = r#"
         SELECT
           year,
@@ -56,93 +50,39 @@ pub async fn get_name_history(
 
     let db = state.db.lock().unwrap();
     let mut stmt = db.prepare(query).unwrap();
+    let mut rows = stmt.query([&request.name]).unwrap();
+    let mut name_found = false;
+    let mut result = NameHistoryData {
+        count_both: vec![0; NUM_YEARS],
+        count_f: vec![0; NUM_YEARS],
+        count_m: vec![0; NUM_YEARS],
+        dense_rank_both: vec![0; NUM_YEARS],
+        dense_rank_f: vec![0; NUM_YEARS],
+        dense_rank_m: vec![0; NUM_YEARS],
+        popularity_both: vec![0.0; NUM_YEARS],
+        popularity_f: vec![0.0; NUM_YEARS],
+        popularity_m: vec![0.0; NUM_YEARS],
+    };
 
-    // Collect all rows from the database
-    let rows: Vec<(i32, i64, i64, i64, i64, i64, i64, f64, f64, f64)> = stmt
-        .query_map([&request.name], |row| {
-            Ok((
-                row.get(0)?, // year
-                row.get(1)?, // count_both
-                row.get(2)?, // count_f
-                row.get(3)?, // count_m
-                row.get(4)?, // dense_rank_both
-                row.get(5)?, // dense_rank_f
-                row.get(6)?, // dense_rank_m
-                row.get(7)?, // popularity_both
-                row.get(8)?, // popularity_f
-                row.get(9)?, // popularity_m
-            ))
-        })
-        .unwrap()
-        .collect::<Result<Vec<_>, _>>()
-        .unwrap();
+    while let Some(row) = rows.next().map_err(|e| e.to_string())? {
+        name_found = true;
+        let year = row.get::<_, i32>(0).map_err(|e| e.to_string())?;
+        let index: usize = (year as usize).saturating_sub(MIN_YEAR);
 
-    // Return error if name is not found
-    if rows.is_empty() {
-        return GetNameHistoryResponse::NameNotFound;
+        result.count_both[index] = row.get::<_, u64>(1).map_err(|e| e.to_string())?;
+        result.count_f[index] = row.get::<_, u64>(2).map_err(|e| e.to_string())?;
+        result.count_m[index] = row.get::<_, u64>(3).map_err(|e| e.to_string())?;
+        result.dense_rank_both[index] = row.get::<_, u64>(4).map_err(|e| e.to_string())?;
+        result.dense_rank_f[index] = row.get::<_, u64>(5).map_err(|e| e.to_string())?;
+        result.dense_rank_m[index] = row.get::<_, u64>(6).map_err(|e| e.to_string())?;
+        result.popularity_both[index] = row.get::<_, f64>(7).map_err(|e| e.to_string())?;
+        result.popularity_f[index] = row.get::<_, f64>(8).map_err(|e| e.to_string())?;
+        result.popularity_m[index] = row.get::<_, f64>(9).map_err(|e| e.to_string())?;
     }
 
-    // Find the maximum year
-    let max_year = rows
-        .iter()
-        .map(|(year, _, _, _, _, _, _, _, _, _)| *year)
-        .max()
-        .unwrap_or(1880);
-    let min_year = 1880;
-
-    // Create a map from year to data for quick lookup
-    let year_data: std::collections::HashMap<i32, (i64, i64, i64, i64, i64, i64, f64, f64, f64)> =
-        rows.into_iter()
-            .map(|(year, cb, cf, cm, drb, drf, drm, pb, pf, pm)| {
-                (year, (cb, cf, cm, drb, drf, drm, pb, pf, pm))
-            })
-            .collect();
-
-    // Build arrays, filling gaps with zeros
-    let mut count_both = Vec::new();
-    let mut count_f = Vec::new();
-    let mut count_m = Vec::new();
-    let mut dense_rank_both = Vec::new();
-    let mut dense_rank_f = Vec::new();
-    let mut dense_rank_m = Vec::new();
-    let mut popularity_both = Vec::new();
-    let mut popularity_f = Vec::new();
-    let mut popularity_m = Vec::new();
-
-    for y in min_year..=max_year {
-        if let Some((cb, cf, cm, drb, drf, drm, pb, pf, pm)) = year_data.get(&y) {
-            count_both.push(*cb);
-            count_f.push(*cf);
-            count_m.push(*cm);
-            dense_rank_both.push(*drb);
-            dense_rank_f.push(*drf);
-            dense_rank_m.push(*drm);
-            popularity_both.push(*pb);
-            popularity_f.push(*pf);
-            popularity_m.push(*pm);
-        } else {
-            // Fill gaps with zeros
-            count_both.push(0);
-            count_f.push(0);
-            count_m.push(0);
-            dense_rank_both.push(0);
-            dense_rank_f.push(0);
-            dense_rank_m.push(0);
-            popularity_both.push(0.0);
-            popularity_f.push(0.0);
-            popularity_m.push(0.0);
-        }
+    if name_found {
+        Ok(result)
+    } else {
+        Err("Name not found".to_owned())
     }
-
-    GetNameHistoryResponse::NameHistory(NameHistoryData {
-        count_both,
-        count_f,
-        count_m,
-        dense_rank_both,
-        dense_rank_f,
-        dense_rank_m,
-        popularity_both,
-        popularity_f,
-        popularity_m,
-    })
 }

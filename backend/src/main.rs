@@ -1,4 +1,5 @@
 mod api;
+mod constants;
 
 use axum::Router;
 use clap::Parser;
