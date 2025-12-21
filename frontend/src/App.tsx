@@ -1,8 +1,16 @@
+import { Routes, Route } from 'react-router-dom'
+import NamePage from './NamePage'
+
 function App() {
   return (
-    <div>
-      hello
-    </div>
+    <Routes>
+      <Route path="/" element={
+        <div>
+          hello
+        </div>
+      } />
+      <Route path="/:name" element={<NamePage />} />
+    </Routes>
   )
 }
 
