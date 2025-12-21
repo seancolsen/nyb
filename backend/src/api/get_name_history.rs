@@ -68,16 +68,18 @@ pub async fn get_name_history(
         name_found = true;
         let year = row.get::<_, i32>(0).map_err(|e| e.to_string())?;
         let index: usize = (year as usize).saturating_sub(MIN_YEAR);
+        let get_u64 = |i: usize| row.get::<_, u64>(i).map_err(|e| e.to_string());
+        let get_f64 = |i: usize| row.get::<_, f64>(i).map_err(|e| e.to_string());
 
-        result.count_both[index] = row.get::<_, u64>(1).map_err(|e| e.to_string())?;
-        result.count_f[index] = row.get::<_, u64>(2).map_err(|e| e.to_string())?;
-        result.count_m[index] = row.get::<_, u64>(3).map_err(|e| e.to_string())?;
-        result.dense_rank_both[index] = row.get::<_, u64>(4).map_err(|e| e.to_string())?;
-        result.dense_rank_f[index] = row.get::<_, u64>(5).map_err(|e| e.to_string())?;
-        result.dense_rank_m[index] = row.get::<_, u64>(6).map_err(|e| e.to_string())?;
-        result.popularity_both[index] = row.get::<_, f64>(7).map_err(|e| e.to_string())?;
-        result.popularity_f[index] = row.get::<_, f64>(8).map_err(|e| e.to_string())?;
-        result.popularity_m[index] = row.get::<_, f64>(9).map_err(|e| e.to_string())?;
+        result.count_both[index] = get_u64(1)?;
+        result.count_f[index] = get_u64(2)?;
+        result.count_m[index] = get_u64(3)?;
+        result.dense_rank_both[index] = get_u64(4)?;
+        result.dense_rank_f[index] = get_u64(5)?;
+        result.dense_rank_m[index] = get_u64(6)?;
+        result.popularity_both[index] = get_f64(7)?;
+        result.popularity_f[index] = get_f64(8)?;
+        result.popularity_m[index] = get_f64(9)?;
     }
 
     if name_found {
