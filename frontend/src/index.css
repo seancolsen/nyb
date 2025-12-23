@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+:root {
+  --theme-girl: #ff00ff;
+  --theme-boy: #0000ff;
+  --theme-axis: #000000;
+  --theme-chart-grid-line: #cccccc;
+  --theme-text: #000000;
+}
