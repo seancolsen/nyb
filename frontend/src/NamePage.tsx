@@ -1,13 +1,16 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { api } from "./api";
+import type { NameHistoryData } from "../../shared_types";
 
 // Shared across all component instances to prevent duplicate requests from StrictMode
 const pending_requests = new Set<string>();
 
 function NamePage() {
   const { name } = useParams<{ name: string }>();
-  const [max_count_both, set_max_count_both] = useState<number | null>(null);
+  const [name_history, set_name_history] = useState<NameHistoryData | null>(
+    null,
+  );
   const request_id_ref = useRef(0);
 
   useEffect(() => {
@@ -31,10 +34,7 @@ function NamePage() {
         // Only update state if this is still the current request
         if (current_request_id === request_id_ref.current) {
           if ("Ok" in result) {
-            const max_count = Math.max(
-              ...result.Ok.count_both.map((count: bigint) => Number(count)),
-            );
-            set_max_count_both(max_count);
+            set_name_history(result.Ok);
           } else {
             console.error("Error fetching name history:", result.Err);
           }
@@ -64,8 +64,10 @@ function NamePage() {
 
   return (
     <div>
-      {max_count_both !== null
-        ? `Maximum count_both: ${max_count_both}`
+      {name_history !== null
+        ? `Maximum count_both: ${Math.max(
+            ...name_history.count_both.map((count: bigint) => Number(count)),
+          )}`
         : "Loading..."}
     </div>
   );
