@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { api } from "./api";
 import type { NameHistoryData } from "../../shared_types";
+import NameHistory from "./NameHistory";
 
 // Shared across all component instances to prevent duplicate requests from StrictMode
 const pending_requests = new Set<string>();
@@ -64,11 +65,11 @@ function NamePage() {
 
   return (
     <div>
-      {name_history !== null
-        ? `Maximum count_both: ${Math.max(
-            ...name_history.count_both.map((count: bigint) => Number(count)),
-          )}`
-        : "Loading..."}
+      {name_history !== null ? (
+        <NameHistory name_history={name_history} />
+      ) : (
+        "Loading..."
+      )}
     </div>
   );
 }
