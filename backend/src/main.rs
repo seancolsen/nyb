@@ -1,6 +1,3 @@
-mod api;
-mod constants;
-
 use axum::Router;
 use clap::Parser;
 use frozen_duckdb::Connection;
@@ -9,7 +6,7 @@ use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
 
-use api::get_name_history;
+use nyb_server::{AppState, get_name_history};
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -19,11 +16,6 @@ struct Args {
     /// Port to listen on (default: 3000, will increment if port is taken)
     #[arg(long, default_value = "3000")]
     port: u16,
-}
-
-#[derive(Clone)]
-pub struct AppState {
-    pub db: Arc<Mutex<Connection>>,
 }
 
 fn find_available_port(start_port: u16) -> u16 {

@@ -3,6 +3,10 @@ name = "nyb-server"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "generate_types"
+path = "src/bin/generate_types.rs"
+
 [dependencies]
 axum = "0.8"
 tokio = { version = "1", features = ["rt", "net", "macros"] }
