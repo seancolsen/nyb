@@ -5,6 +5,7 @@ use qubit::server::Router as QubitRouter;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
+use tower_http::cors::CorsLayer;
 
 use nyb_server::{AppState, get_name_history};
 
@@ -47,8 +48,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Convert qubit router to Axum service
     let (qubit_service, _qubit_handle) = qubit_router.to_service(state);
 
-    // Create Axum router
-    let app = Router::new().nest_service("/api", qubit_service);
+    // Create Axum router with CORS
+    let app = Router::new()
+        .nest_service("/api", qubit_service)
+        .layer(CorsLayer::permissive());
 
     // Start the server
     let listener = TokioTcpListener::bind(format!("127.0.0.1:{}", port)).await?;
