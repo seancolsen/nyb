@@ -13,9 +13,17 @@
 import type { NameHistoryData } from "./NameHistoryData.ts";
 import type { GetNameHistoryRequest } from "./GetNameHistoryRequest.ts";
 import type { Query } from "@qubit-rs/client";
+import type { NameData } from "./NameData.ts";
+import type { SearchNamesResponse } from "./SearchNamesResponse.ts";
+import type { TextQuery } from "./TextQuery.ts";
+import type { SearchNamesRequest } from "./SearchNamesRequest.ts";
 
 export type { NameHistoryData } from "./NameHistoryData.ts";
 export type { GetNameHistoryRequest } from "./GetNameHistoryRequest.ts";
 export type { Query } from "@qubit-rs/client";
+export type { NameData } from "./NameData.ts";
+export type { SearchNamesResponse } from "./SearchNamesResponse.ts";
+export type { TextQuery } from "./TextQuery.ts";
+export type { SearchNamesRequest } from "./SearchNamesRequest.ts";
 
-export type QubitServer = { get_name_history: Query<[request: GetNameHistoryRequest, ], { Ok : NameHistoryData } | { Err : string }> };
+export type QubitServer = { get_name_history: Query<[request: GetNameHistoryRequest, ], { Ok : NameHistoryData } | { Err : string }>, search_names: Query<[request: SearchNamesRequest, ], { Ok : SearchNamesResponse } | { Err : string }> };
