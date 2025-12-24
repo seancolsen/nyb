@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
 use tower_http::cors::{CorsLayer, Any};
 
-use nyb_server::{AppState, get_name_history};
+use nyb_server::{AppState, get_name_history, search_names};
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -44,7 +44,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = find_available_port(args.port);
 
     // Create qubit router
-    let qubit_router = QubitRouter::new().handler(get_name_history);
+    let qubit_router = QubitRouter::new()
+        .handler(get_name_history)
+        .handler(search_names);
 
     // Convert qubit router to Axum service
     let (qubit_service, _qubit_handle) = qubit_router.to_service(state);

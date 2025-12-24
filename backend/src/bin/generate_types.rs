@@ -2,11 +2,13 @@ use qubit::server::Router as QubitRouter;
 use std::path::PathBuf;
 
 // Import the handler from the main crate
-use nyb_server::get_name_history;
+use nyb_server::{get_name_history, search_names};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create qubit router with the same handlers as the main app
-    let qubit_router = QubitRouter::new().handler(get_name_history);
+    let qubit_router = QubitRouter::new()
+        .handler(get_name_history)
+        .handler(search_names);
 
     // Determine the output directory (shared_types relative to project root)
     // This binary runs from backend/, so we need to go up one level
