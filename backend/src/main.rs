@@ -2,13 +2,12 @@ use axum::Router;
 use axum::http::Method;
 use clap::Parser;
 use frozen_duckdb::Connection;
-use qubit::server::Router as QubitRouter;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
 use tower_http::cors::{CorsLayer, Any};
 
-use nyb_server::{AppState, get_name_history, search_names};
+use nyb_server::{AppState, create_router};
 
 #[derive(Parser)]
 #[command(name = "nyb-server")]
@@ -44,9 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = find_available_port(args.port);
 
     // Create qubit router
-    let qubit_router = QubitRouter::new()
-        .handler(get_name_history)
-        .handler(search_names);
+    let qubit_router = create_router();
 
     // Convert qubit router to Axum service
     let (qubit_service, _qubit_handle) = qubit_router.to_service(state);
