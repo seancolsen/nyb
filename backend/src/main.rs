@@ -1,11 +1,11 @@
 use axum::Router;
 use axum::http::Method;
 use clap::Parser;
-use frozen_duckdb::Connection;
+use duckdb::Connection;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::{Any, CorsLayer};
 
 use nyb_server::{AppState, create_router};
 
@@ -32,35 +32,22 @@ fn find_available_port(start_port: u16) -> u16 {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-
-    // Connect to DuckDB
     let db = Connection::open(&args.db_path)?;
+    db.set_prepared_statement_cache_capacity(1024);
     let state = AppState {
         db: Arc::new(Mutex::new(db)),
     };
 
-    // Find available port
     let port = find_available_port(args.port);
-
-    // Create qubit router
     let qubit_router = create_router();
-
-    // Convert qubit router to Axum service
     let (qubit_service, _qubit_handle) = qubit_router.to_service(state);
-
-    // Create Axum router with optimized CORS
-    // Only allow the frontend origin and necessary methods/headers
-    let app = Router::new()
-        .nest_service("/api", qubit_service)
-        .layer(
-            CorsLayer::new()
-                .allow_origin(Any)
-                .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-                .allow_headers(Any)
-                .max_age(std::time::Duration::from_secs(3600)), // Cache preflight for 1 hour
-        );
-
-    // Start the server
+    let app = Router::new().nest_service("/api", qubit_service).layer(
+        CorsLayer::new()
+            .allow_origin(Any)
+            .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+            .allow_headers(Any)
+            .max_age(std::time::Duration::from_secs(3600)),
+    );
     let listener = TokioTcpListener::bind(format!("127.0.0.1:{}", port)).await?;
     let url = format!("http://localhost:{}", port);
     println!("Server listening on {}", url);

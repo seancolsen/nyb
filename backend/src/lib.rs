@@ -5,7 +5,7 @@ pub mod router;
 pub use api::*;
 pub use router::create_router;
 
-use frozen_duckdb::Connection;
+use duckdb::Connection;
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone)]
