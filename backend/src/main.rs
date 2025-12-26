@@ -1,7 +1,7 @@
 use axum::Router;
 use axum::http::Method;
 use clap::Parser;
-use duckdb::Connection;
+use duckdb::{AccessMode, Config, Connection};
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use tokio::net::TcpListener as TokioTcpListener;
@@ -32,7 +32,8 @@ fn find_available_port(start_port: u16) -> u16 {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-    let db = Connection::open(&args.db_path)?;
+    let config = Config::default().access_mode(AccessMode::ReadOnly)?;
+    let db = Connection::open_with_flags(&args.db_path, config)?;
     db.set_prepared_statement_cache_capacity(1024);
     let state = AppState {
         db: Arc::new(Mutex::new(db)),
