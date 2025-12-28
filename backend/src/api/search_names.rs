@@ -38,6 +38,7 @@ pub struct SearchNamesResponse {
 #[ts(export)]
 pub struct NameData {
     pub name: String,
+    pub shape: String,
 }
 
 #[handler(query)]
@@ -56,7 +57,7 @@ pub async fn search_names(
         prefixed_key
     };
 
-    query.push_str("SELECT name FROM name WHERE ");
+    query.push_str("SELECT name, condensed_shape FROM name WHERE ");
 
     match request.text_query.method {
         SearchMethod::Contains => {
@@ -93,7 +94,8 @@ pub async fn search_names(
     let mut names = Vec::new();
     while let Some(row) = rows.next().map_err(|e| e.to_string())? {
         let name = row.get::<_, String>(0).map_err(|e| e.to_string())?;
-        names.push(NameData { name });
+        let shape = row.get::<_, String>(1).map_err(|e| e.to_string())?;
+        names.push(NameData { name, shape });
     }
 
     Ok(SearchNamesResponse { names })
