@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "./api";
-import type { SearchMethod } from "../../shared_types/SearchMethod";
-import type { NameData } from "../../shared_types";
+import type { SearchMethod } from "./api_types/SearchMethod";
+import type { NameData } from "./api_types";
 
 function HomePage() {
   const [query, set_query] = useState("");
