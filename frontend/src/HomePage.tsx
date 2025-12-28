@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { api } from "./api";
 import type { SearchMethod } from "./api_types/SearchMethod";
 import type { NameData } from "./api_types";
+import NameResult from "./NameResult";
 
 function HomePage() {
   const [query, set_query] = useState("");
   const [method, set_method] = useState<SearchMethod>("Contains");
-  const [results, set_results] = useState<string[]>([]);
+  const [results, set_results] = useState<NameData[]>([]);
   const [loading, set_loading] = useState(false);
 
   const handle_search = async () => {
@@ -25,7 +25,7 @@ function HomePage() {
       });
 
       if ("Ok" in result) {
-        set_results(result.Ok.names.map((n: NameData) => n.name));
+        set_results(result.Ok.names);
       } else {
         console.error("Error searching names:", result.Err);
         set_results([]);
@@ -63,15 +63,11 @@ function HomePage() {
           Search
         </button>
       </form>
-      {results.length > 0 && (
-        <ul>
-          {results.map((name, index) => (
-            <li key={index}>
-              <Link to={`/${name}`}>{name}</Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      {results.map((name) => (
+        <div key={name.name}>
+          <NameResult name={name} />
+        </div>
+      ))}
     </div>
   );
 }
