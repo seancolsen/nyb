@@ -47,6 +47,9 @@ create or replace table name (
   -- for the past 100 years. The remaining 20 values are `popularity_m` values,
   -- averaged over 5-year windows for the past 100 years.
   shape float[40],
+  -- A base64-encoded string of the shape vector as unsigned 8-bit integers.
+  -- The front-end uses this to render the mini charts.
+  condensed_shape text,
 );
 insert into name (name) select distinct name from import;
 create index x_name__name on name (name);
@@ -243,6 +246,23 @@ update name as t set shape = s.shape from (
     name_buckets.bucket = all_buckets.bucket
   group by name.id
 ) as s where t.id = s.id;
+
+
+-- =============================================================================
+-- name condensed shape
+
+update name
+set condensed_shape = to_base64(
+  list_reduce(
+    apply(
+      shape,
+      lambda v: round(
+        least(greatest(v, 0.0), 1.0) * 255.0
+      )::utinyint::bitstring::blob
+    ),
+    lambda a, b: a || b
+  )
+);
 
 -- =============================================================================
 -- similar names
