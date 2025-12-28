@@ -82,6 +82,8 @@ pub async fn search_names(
         query.push_str(&where_expressions.join(" AND "));
     }
 
+    query.push_str("\nLIMIT 1000");
+
     let db = state.db.lock().unwrap();
     let mut stmt = db.prepare(&query).map_err(|e| e.to_string())?;
 
