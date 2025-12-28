@@ -1,12 +1,21 @@
 import { Link } from "react-router-dom";
 import type { NameData } from "./api_types";
+import NameHistoryChartMini from "./NameHistoryChartMini";
 
 interface NameResultProps {
   name: NameData;
 }
 
 function NameResult({ name }: NameResultProps) {
-  return <Link to={`/${name.name}`}>{name.name}</Link>;
+  return (
+    <Link
+      to={`/${name.name}`}
+      className="grid grid-flow-col gap-2 items-center max-w-max hover:underline"
+    >
+      <NameHistoryChartMini shape={name.shape} />
+      <span className="text-xl">{name.name}</span>
+    </Link>
+  );
 }
 
 export default NameResult;

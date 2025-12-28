@@ -64,7 +64,7 @@ function HomePage() {
         </button>
       </form>
       {results.map((name) => (
-        <div key={name.name}>
+        <div key={name.name} className="p-1">
           <NameResult name={name} />
         </div>
       ))}
