@@ -10,7 +10,7 @@ use crate::AppState;
 #[derive(Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct SearchNamesRequest {
-    pub text_query: TextQuery,
+    pub text_query: Option<TextQuery>,
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -56,22 +56,30 @@ pub async fn search_names(
         query_param_count += 1;
         prefixed_key
     };
+    let mut where_expressions = Vec::new();
 
-    query.push_str("SELECT name, condensed_shape FROM name WHERE ");
+    query.push_str("SELECT name, condensed_shape FROM name");
 
-    match request.text_query.method {
-        SearchMethod::Contains => {
-            let p = set_query_param(Box::new(format!("%{}%", request.text_query.query)));
-            query.push_str(&format!("name ILIKE {}", p));
+    if let Some(text_query) = request.text_query {
+        match text_query.method {
+            SearchMethod::Contains => {
+                let p = set_query_param(Box::new(format!("%{}%", text_query.query)));
+                where_expressions.push(format!("name ILIKE {}", p));
+            }
+            SearchMethod::StartsWith => {
+                let p = set_query_param(Box::new(format!("{}%", text_query.query)));
+                where_expressions.push(format!("name ILIKE {}", p));
+            }
+            SearchMethod::RegExp => {
+                let p = set_query_param(Box::new(text_query.query.clone()));
+                where_expressions.push(format!("regexp_matches(name, {}, 'i')", p));
+            }
         }
-        SearchMethod::StartsWith => {
-            let p = set_query_param(Box::new(format!("{}%", request.text_query.query)));
-            query.push_str(&format!("name ILIKE {}", p));
-        }
-        SearchMethod::RegExp => {
-            let p = set_query_param(Box::new(request.text_query.query.clone()));
-            query.push_str(&format!("regexp_matches(name, {}, 'i')", p));
-        }
+    }
+
+    if !where_expressions.is_empty() {
+        query.push_str("\nWHERE ");
+        query.push_str(&where_expressions.join(" AND "));
     }
 
     let db = state.db.lock().unwrap();
