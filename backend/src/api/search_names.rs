@@ -510,7 +510,7 @@ pub async fn search_names(
         write!(&mut query, "\nORDER BY {expression}").unwrap();
     }
 
-    query.push_str("\nLIMIT 1000");
+    query.push_str("\nLIMIT 500");
 
     #[cfg(debug_assertions)]
     {
@@ -518,7 +518,7 @@ pub async fn search_names(
     }
 
     let db = state.db.lock().unwrap();
-    let mut stmt = db.prepare(&query).map_err(|e| e.to_string())?;
+    let mut stmt = db.prepare_cached(&query).map_err(|e| e.to_string())?;
 
     let mut flat_params = Vec::<&dyn ToSql>::new();
     for i in 1..=stmt.parameter_count() {
