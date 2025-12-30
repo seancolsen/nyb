@@ -22,6 +22,8 @@ function HomePage() {
           query: query.trim(),
           method: method,
         },
+        filters: [],
+        sort: null,
       });
 
       if ("Ok" in result) {
