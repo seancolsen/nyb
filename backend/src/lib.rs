@@ -1,6 +1,7 @@
 pub mod api;
 pub mod constants;
 pub mod router;
+pub mod utils;
 
 pub use api::*;
 pub use router::create_router;
