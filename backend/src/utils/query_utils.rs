@@ -23,8 +23,4 @@ impl QueryParamMap {
     pub fn get(&self, key: &str) -> Option<&Box<dyn ToSql>> {
         self.query_params.get(key)
     }
-
-    pub fn merge(&mut self, other: QueryParamMap) {
-        self.query_params.extend(other.query_params);
-    }
 }

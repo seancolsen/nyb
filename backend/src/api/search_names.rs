@@ -233,17 +233,16 @@ impl Purpose {
 struct Cte {
     name: String,
     select_statement: String,
-    params: QueryParamMap,
     filtering_expressions: Vec<String>,
     sorting_expression: Option<String>,
 }
 
 fn build_cte_for_one_year(
+    params: &mut QueryParamMap,
     name: String,
     year: u16,
     measurements: HashMap<Measurement, Purpose>,
 ) -> Cte {
-    let mut params = QueryParamMap::new();
     let mut sorting_expression: Option<String> = None;
     let mut filtering_expressions = Vec::<String>::new();
     let mut query = String::with_capacity(1000);
@@ -276,19 +275,18 @@ fn build_cte_for_one_year(
     Cte {
         name,
         select_statement: query,
-        params,
         filtering_expressions,
         sorting_expression,
     }
 }
 
 fn build_cte_for_many_years(
+    params: &mut QueryParamMap,
     name: String,
     aggregate_function: AggregateFunction,
     range: Range,
     measurements: HashMap<Measurement, Purpose>,
 ) -> Cte {
-    let mut params = QueryParamMap::new();
     let mut sorting_expression: Option<String> = None;
     let mut filtering_expressions = Vec::<String>::new();
     let mut select_statement = String::with_capacity(1000);
@@ -297,14 +295,18 @@ fn build_cte_for_many_years(
     todo!()
 }
 
-fn build_cte(selection: Selection, measurements: HashMap<Measurement, Purpose>) -> Cte {
+fn build_cte(
+    params: &mut QueryParamMap,
+    selection: Selection,
+    measurements: HashMap<Measurement, Purpose>,
+) -> Cte {
     let name = selection.gen_cte_name();
     match selection {
-        Selection::OneYear(year) => build_cte_for_one_year(name, year, measurements),
+        Selection::OneYear(year) => build_cte_for_one_year(params, name, year, measurements),
         Selection::ManyYears {
             aggregate_function,
             range,
-        } => build_cte_for_many_years(name, aggregate_function, range, measurements),
+        } => build_cte_for_many_years(params, name, aggregate_function, range, measurements),
     }
 }
 
@@ -335,16 +337,16 @@ pub async fn search_names(
         map
     };
 
-    let ctes: Vec<Cte> = directive_map
-        .into_iter()
-        .map(|(selection, measurements)| build_cte(selection, measurements))
-        .collect();
-
     let mut query = String::with_capacity(1000);
     let mut params = QueryParamMap::new();
     let mut where_expressions = Vec::<String>::new();
     let mut sorting_expression: Option<String> = None;
     let mut join_expressions = Vec::<String>::new();
+
+    let ctes: Vec<Cte> = directive_map
+        .into_iter()
+        .map(|(selection, measurements)| build_cte(&mut params, selection, measurements))
+        .collect();
 
     let has_ctes = !ctes.is_empty();
     let cte_count = ctes.len();
@@ -359,7 +361,6 @@ pub async fn search_names(
             query.push_str(",\n");
         }
 
-        params.merge(cte.params);
         where_expressions.extend(cte.filtering_expressions);
         if let Some(e) = cte.sorting_expression {
             sorting_expression = Some(e);
