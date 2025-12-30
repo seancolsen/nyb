@@ -9,7 +9,10 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::utils::QueryParamMap;
-use crate::{AppState, constants::MAX_YEAR};
+use crate::{
+    AppState,
+    constants::{MAX_YEAR, MIN_YEAR},
+};
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, Hash, PartialEq, Eq)]
 /// A newtype wrapper around `OrderedFloat<f64>`. Using this in our custom types allows us to
@@ -167,6 +170,18 @@ pub enum AggregateFunction {
     Trend,
 }
 
+fn render_year_range_query(min_year_param: String, max_year_param: String) -> String {
+    format!(
+        concat!(
+            "WITH RECURSIVE y(v) AS (\n",
+            "  SELECT {min} UNION ALL SELECT v + 1 FROM y WHERE v < {max}\n",
+            ") SELECT v AS year FROM y",
+        ),
+        min = min_year_param,
+        max = max_year_param
+    )
+}
+
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
 #[ts(export)]
 pub enum Range {
@@ -175,6 +190,30 @@ pub enum Range {
     Between(u16, u16),
     AllLivingPeople,
     AllYears,
+}
+
+impl Range {
+    pub fn gen_query(&self, params: &mut QueryParamMap) -> String {
+        match self {
+            Range::AllYears => render_year_range_query(
+                params.set(Box::new(MIN_YEAR)),
+                params.set(Box::new(MAX_YEAR)),
+            ),
+            Range::Between(min, max) => {
+                render_year_range_query(params.set(Box::new(*min)), params.set(Box::new(*max)))
+            }
+            Range::Previous(previous) => render_year_range_query(
+                params.set(Box::new(MAX_YEAR - *previous as usize)),
+                params.set(Box::new(MAX_YEAR)),
+            ),
+            Range::Generation(generation) => {
+                let (min, max) = generation.get_min_max_years();
+                render_year_range_query(params.set(Box::new(min)), params.set(Box::new(max)))
+            }
+
+            Range::AllLivingPeople => todo!(),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
@@ -188,6 +227,21 @@ pub enum Generation {
     Millennial,
     Z,
     Alpha,
+}
+
+impl Generation {
+    pub fn get_min_max_years(&self) -> (u16, u16) {
+        match self {
+            Generation::Lost => (MIN_YEAR as u16, 1900),
+            Generation::Greatest => (1901, 1927),
+            Generation::Silent => (1928, 1945),
+            Generation::Boomer => (1946, 1964),
+            Generation::X => (1965, 1980),
+            Generation::Millennial => (1981, 1996),
+            Generation::Z => (1997, 2012),
+            Generation::Alpha => (2013, MAX_YEAR as u16),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, TS, Hash)]
@@ -232,7 +286,7 @@ impl Purpose {
 
 struct Cte {
     name: String,
-    select_statement: String,
+    query: String,
     filtering_expressions: Vec<String>,
     sorting_expression: Option<String>,
 }
@@ -247,13 +301,16 @@ fn build_cte_for_one_year(
     let mut filtering_expressions = Vec::<String>::new();
     let mut query = String::with_capacity(1000);
 
-    query.push_str("SELECT\n  name,");
+    query.push_str("SELECT\n  name");
 
+    // NOTICE: there is some duplicated code below with `build_cte_for_many_years`
     for (measurement, purpose) in measurements {
-        query.push_str("\n  ");
+        query.push_str(",\n  ");
         query.push_str(measurement.get_sql_expr());
+
         let hash = measurement.get_hash();
         write!(&mut query, " AS _{hash},").unwrap();
+
         let column = || format!("{name}._{hash}");
         if purpose.sorting {
             sorting_expression = Some(format!("{} DESC", column()));
@@ -274,7 +331,7 @@ fn build_cte_for_one_year(
 
     Cte {
         name,
-        select_statement: query,
+        query,
         filtering_expressions,
         sorting_expression,
     }
@@ -289,10 +346,55 @@ fn build_cte_for_many_years(
 ) -> Cte {
     let mut sorting_expression: Option<String> = None;
     let mut filtering_expressions = Vec::<String>::new();
-    let mut select_statement = String::with_capacity(1000);
-    let mut columns = Vec::<String>::new();
+    let mut query = String::with_capacity(1000);
 
-    todo!()
+    query.push_str("WITH all_years AS (\n");
+    query.push_str(&range.gen_query(params));
+    query.push_str("\n)\n");
+
+    query.push_str("SELECT\n  name_year.name,");
+
+    // NOTICE: there is some duplicated code below with `build_cte_for_one_year`
+    for (measurement, purpose) in measurements {
+        query.push_str("\n  ");
+
+        let e = measurement.get_sql_expr();
+        query.push_str("coalesce(");
+        match aggregate_function {
+            AggregateFunction::Ave => write!(&mut query, "avg({e})").unwrap(),
+            AggregateFunction::Min => write!(&mut query, "min({e})").unwrap(),
+            AggregateFunction::Max => write!(&mut query, "max({e})").unwrap(),
+            AggregateFunction::Trend => {
+                write!(&mut query, "regr_slope({e}, name_year.year)").unwrap()
+            }
+        }
+        query.push_str(", 0.0)");
+
+        let hash = measurement.get_hash();
+        write!(&mut query, " AS _{hash},").unwrap();
+
+        let column = || format!("{name}._{hash}");
+        if purpose.sorting {
+            sorting_expression = Some(format!("{} DESC", column()));
+        }
+        for comparison in purpose.filtering {
+            let expr = match comparison {
+                Comparison::Gt(v) => format!("{} > {}", column(), params.set(Box::new(v))),
+                Comparison::Lt(v) => format!("{} < {}", column(), params.set(Box::new(v))),
+            };
+            filtering_expressions.push(expr);
+        }
+    }
+
+    query.push_str("\nFROM name_year\nJOIN all_years ON all_years.year = name_year.year\n");
+    query.push_str("GROUP BY name_year.name");
+
+    Cte {
+        name,
+        query,
+        filtering_expressions,
+        sorting_expression,
+    }
 }
 
 fn build_cte(
@@ -355,7 +457,7 @@ pub async fn search_names(
     }
     for (i, cte) in ctes.into_iter().enumerate() {
         let name = cte.name;
-        let select = cte.select_statement;
+        let select = cte.query;
         write!(&mut query, "{name} AS (\n{select}\n)").unwrap();
         if i < cte_count - 1 {
             query.push_str(",\n");
@@ -412,7 +514,7 @@ pub async fn search_names(
 
     #[cfg(debug_assertions)]
     {
-        println!("{query}\n");
+        println!("⚡\n{query}\n");
     }
 
     let db = state.db.lock().unwrap();
