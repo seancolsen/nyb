@@ -11,17 +11,14 @@ function HomePage() {
   const [loading, set_loading] = useState(false);
 
   const handle_search = async () => {
-    if (!query.trim()) {
-      return;
-    }
+    const trimmed_query = query.trim();
 
     set_loading(true);
     try {
       const result = await api.search_names.query({
-        text_query: {
-          query: query.trim(),
-          method: method,
-        },
+        text_query: trimmed_query
+          ? { query: trimmed_query, method: method }
+          : null,
         filters: [],
         sort: null,
       });
