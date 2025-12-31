@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::Write;
+use std::fmt::{Write, write};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use duckdb::{ToSql, types::ToSqlOutput};
@@ -85,7 +85,7 @@ pub struct Filter {
     pub comparison: Comparison,
 }
 
-#[derive(Deserialize, Serialize, TS)]
+#[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
 #[ts(export)]
 pub struct Statistic {
     pub measurement: Measurement,
@@ -153,11 +153,11 @@ pub enum Selection {
 }
 
 impl Selection {
-    fn gen_cte_name(&self) -> String {
-        let mut hasher = DefaultHasher::new();
-        self.hash(&mut hasher);
-        let hash = hasher.finish();
-        format!("_{}", hash)
+    pub fn get_range(&self) -> Range {
+        match self {
+            Selection::OneYear(year) => Range::Between(*year, *year),
+            Selection::ManyYears { range, .. } => *range,
+        }
     }
 }
 
@@ -193,6 +193,21 @@ pub enum Range {
 }
 
 impl Range {
+    /// If this range represents one year, return that year. Otherwise return None.
+    pub fn get_single_year(&self) -> Option<u16> {
+        match self {
+            Range::Between(min, max) if min == max => Some(*min),
+            _ => None,
+        }
+    }
+
+    pub fn gen_cte_name(&self) -> String {
+        let mut hasher = DefaultHasher::new();
+        self.hash(&mut hasher);
+        let hash = hasher.finish();
+        format!("_{}", hash)
+    }
+
     pub fn gen_query(&self, params: &mut QueryParamMap) -> String {
         match self {
             Range::AllYears => render_year_range_query(
@@ -291,86 +306,44 @@ struct Cte {
     sorting_expression: Option<String>,
 }
 
-fn build_cte_for_one_year(
+fn build_cte(
     params: &mut QueryParamMap,
-    name: String,
-    year: u16,
-    measurements: HashMap<Measurement, Purpose>,
-) -> Cte {
-    let mut sorting_expression: Option<String> = None;
-    let mut filtering_expressions = Vec::<String>::new();
-    let mut query = String::with_capacity(1000);
-
-    query.push_str("SELECT\n  name");
-
-    // NOTICE: there is some duplicated code below with `build_cte_for_many_years`
-    for (measurement, purpose) in measurements {
-        query.push_str(",\n  ");
-        query.push_str(measurement.get_sql_expr());
-
-        let hash = measurement.get_hash();
-        write!(&mut query, " AS _{hash},").unwrap();
-
-        let column = || format!("{name}._{hash}");
-        if purpose.sorting {
-            sorting_expression = Some(format!("{} DESC", column()));
-        }
-        for comparison in purpose.filtering {
-            let expr = match comparison {
-                Comparison::Gt(v) => format!("{} > {}", column(), params.set(Box::new(v))),
-                Comparison::Lt(v) => format!("{} < {}", column(), params.set(Box::new(v))),
-            };
-            filtering_expressions.push(expr);
-        }
-    }
-
-    query.push_str("\nFROM name_year");
-
-    let p_year = params.set(Box::new(year));
-    write!(&mut query, "\nWHERE year = {p_year}").unwrap();
-
-    Cte {
-        name,
-        query,
-        filtering_expressions,
-        sorting_expression,
-    }
-}
-
-fn build_cte_for_many_years(
-    params: &mut QueryParamMap,
-    name: String,
-    aggregate_function: AggregateFunction,
     range: Range,
-    measurements: HashMap<Measurement, Purpose>,
+    statistics: HashMap<Statistic, Purpose>,
 ) -> Cte {
+    let name = range.gen_cte_name();
+    let single_year = range.get_single_year();
+    let is_multi_year = single_year.is_none();
     let mut sorting_expression: Option<String> = None;
     let mut filtering_expressions = Vec::<String>::new();
     let mut query = String::with_capacity(1000);
 
-    query.push_str("WITH all_years AS (\n");
-    query.push_str(&range.gen_query(params));
-    query.push_str("\n)\n");
+    if is_multi_year {
+        query.push_str("WITH all_years AS (\n");
+        query.push_str(&range.gen_query(params));
+        query.push_str("\n)\n");
+    }
 
     query.push_str("SELECT\n  name_year.name,");
 
-    // NOTICE: there is some duplicated code below with `build_cte_for_one_year`
-    for (measurement, purpose) in measurements {
+    for (statistic, purpose) in statistics {
         query.push_str("\n  ");
-
-        let e = measurement.get_sql_expr();
-        query.push_str("coalesce(");
-        match aggregate_function {
-            AggregateFunction::Ave => write!(&mut query, "avg({e})").unwrap(),
-            AggregateFunction::Min => write!(&mut query, "min({e})").unwrap(),
-            AggregateFunction::Max => write!(&mut query, "max({e})").unwrap(),
-            AggregateFunction::Trend => {
-                write!(&mut query, "regr_slope({e}, name_year.year)").unwrap()
-            }
+        let e = format!("coalesce({}, 0.0)", statistic.measurement.get_sql_expr());
+        match statistic.selection {
+            Selection::OneYear(_) => query.push_str(&e),
+            Selection::ManyYears {
+                aggregate_function, ..
+            } => match aggregate_function {
+                AggregateFunction::Ave => write!(&mut query, "avg({e})").unwrap(),
+                AggregateFunction::Min => write!(&mut query, "min({e})").unwrap(),
+                AggregateFunction::Max => write!(&mut query, "max({e})").unwrap(),
+                AggregateFunction::Trend => {
+                    write!(&mut query, "regr_slope({e}, name_year.year)").unwrap()
+                }
+            },
         }
-        query.push_str(", 0.0)");
 
-        let hash = measurement.get_hash();
+        let hash = statistic.measurement.get_hash();
         write!(&mut query, " AS _{hash},").unwrap();
 
         let column = || format!("{name}._{hash}");
@@ -386,29 +359,26 @@ fn build_cte_for_many_years(
         }
     }
 
-    query.push_str("\nFROM name_year\nJOIN all_years ON all_years.year = name_year.year\n");
-    query.push_str("GROUP BY name_year.name");
+    if let Some(year) = single_year {
+        write!(
+            &mut query,
+            "\nFROM name_year\nWHERE name_year.year = {}",
+            params.set(Box::new(year))
+        )
+        .unwrap();
+    } else {
+        query.push_str(concat!(
+            "\nFROM all_years",
+            "\nLEFT JOIN name_year ON name_year.year = all_years.year",
+            "\nGROUP BY name_year.name",
+        ));
+    }
 
     Cte {
         name,
         query,
         filtering_expressions,
         sorting_expression,
-    }
-}
-
-fn build_cte(
-    params: &mut QueryParamMap,
-    selection: Selection,
-    measurements: HashMap<Measurement, Purpose>,
-) -> Cte {
-    let name = selection.gen_cte_name();
-    match selection {
-        Selection::OneYear(year) => build_cte_for_one_year(params, name, year, measurements),
-        Selection::ManyYears {
-            aggregate_function,
-            range,
-        } => build_cte_for_many_years(params, name, aggregate_function, range, measurements),
     }
 }
 
@@ -422,18 +392,18 @@ pub async fn search_names(
         selection: Selection::OneYear(MAX_YEAR as u16 - 15),
     });
 
-    let directive_map = {
-        let mut map = HashMap::<Selection, HashMap<Measurement, Purpose>>::new();
+    let range_map = {
+        let mut map = HashMap::<Range, HashMap<Statistic, Purpose>>::new();
         for filter in request.filters {
-            map.entry(filter.statistic.selection)
+            map.entry(filter.statistic.selection.get_range())
                 .or_default()
-                .entry(filter.statistic.measurement)
+                .entry(filter.statistic)
                 .or_default()
                 .add_filter(filter.comparison);
         }
-        map.entry(sort.selection)
+        map.entry(sort.selection.get_range())
             .or_default()
-            .entry(sort.measurement)
+            .entry(sort)
             .or_default()
             .sorting = true;
         map
@@ -445,9 +415,9 @@ pub async fn search_names(
     let mut sorting_expression: Option<String> = None;
     let mut join_expressions = Vec::<String>::new();
 
-    let ctes: Vec<Cte> = directive_map
+    let ctes: Vec<Cte> = range_map
         .into_iter()
-        .map(|(selection, measurements)| build_cte(&mut params, selection, measurements))
+        .map(|(range, statistics)| build_cte(&mut params, range, statistics))
         .collect();
 
     let has_ctes = !ctes.is_empty();
