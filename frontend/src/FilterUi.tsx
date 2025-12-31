@@ -7,27 +7,27 @@ interface FilterUiProps {
   onRemove: () => void;
 }
 
-function FilterUi({ value, onChange: on_change, onRemove: on_remove }: FilterUiProps) {
-  const comparison_type = "Gt" in value.comparison ? "Gt" : "Lt";
-  const comparison_value = "Gt" in value.comparison ? value.comparison.Gt : value.comparison.Lt;
+function FilterUi({ value, onChange: onChange, onRemove: onRemove }: FilterUiProps) {
+  const comparisonType = "gt" in value.comparison ? "gt" : "lt";
+  const comparisonValue = "gt" in value.comparison ? value.comparison.gt : value.comparison.lt;
 
-  const handle_comparison_type_change = (new_type: "Gt" | "Lt") => {
-    on_change({
+  const handleComparisonTypeChange = (newType: "gt" | "lt") => {
+    onChange({
       ...value,
-      comparison: new_type === "Gt" ? { Gt: comparison_value } : { Lt: comparison_value },
+      comparison: newType === "gt" ? { gt: comparisonValue } : { lt: comparisonValue },
     });
   };
 
-  const handle_comparison_value_change = (new_value: number) => {
-    on_change({
+  const handleComparisonValueChange = (newValue: number) => {
+    onChange({
       ...value,
-      comparison: comparison_type === "Gt" ? { Gt: new_value } : { Lt: new_value },
+      comparison: comparisonType === "gt" ? { gt: newValue } : { lt: newValue },
     });
   };
 
-  const handle_statistic_change = (statistic: typeof value.statistic | null) => {
+  const handleStatisticChange = (statistic: typeof value.statistic | null) => {
     if (statistic) {
-      on_change({
+      onChange({
         ...value,
         statistic,
       });
@@ -36,20 +36,20 @@ function FilterUi({ value, onChange: on_change, onRemove: on_remove }: FilterUiP
 
   return (
     <div>
-      <StatisticUi value={value.statistic} onChange={handle_statistic_change} />
+      <StatisticUi value={value.statistic} onChange={handleStatisticChange} />
       <select
-        value={comparison_type}
-        onChange={(e) => handle_comparison_type_change(e.target.value as "Gt" | "Lt")}
+        value={comparisonType}
+        onChange={(e) => handleComparisonTypeChange(e.target.value as "gt" | "lt")}
       >
-        <option value="Gt">Greater than</option>
-        <option value="Lt">Less than</option>
+        <option value="gt">Greater than</option>
+        <option value="lt">Less than</option>
       </select>
       <input
         type="number"
-        value={comparison_value}
-        onChange={(e) => handle_comparison_value_change(parseFloat(e.target.value) || 0)}
+        value={comparisonValue}
+        onChange={(e) => handleComparisonValueChange(parseFloat(e.target.value) || 0)}
       />
-      <button type="button" onClick={on_remove}>
+      <button type="button" onClick={onRemove}>
         Remove
       </button>
     </div>

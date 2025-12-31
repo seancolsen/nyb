@@ -6,12 +6,14 @@ use crate::AppState;
 use crate::constants::{MIN_YEAR, NUM_YEARS};
 
 #[derive(Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct GetNameHistoryRequest {
     pub name: String,
 }
 
 #[derive(Clone, Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct NameHistoryData {
     pub count_both: Vec<u64>,

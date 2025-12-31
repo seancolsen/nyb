@@ -2,11 +2,11 @@ import type { NameHistoryData } from "./api_types";
 import NameHistoryChart from "./NameHistoryChart";
 
 interface NameHistoryProps {
-  name_history: NameHistoryData;
+  nameHistory: NameHistoryData;
 }
 
-function NameHistory({ name_history }: NameHistoryProps) {
-  return <NameHistoryChart name_history={name_history} />;
+function NameHistory({ nameHistory }: NameHistoryProps) {
+  return <NameHistoryChart nameHistory={nameHistory} />;
 }
 
 export default NameHistory;

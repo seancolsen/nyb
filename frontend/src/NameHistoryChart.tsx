@@ -1,62 +1,61 @@
 import type { NameHistoryData } from "./api_types";
 
 interface NameHistoryChartProps {
-  name_history: NameHistoryData;
+  nameHistory: NameHistoryData;
 }
 
-function NameHistoryChart({ name_history }: NameHistoryChartProps) {
+function NameHistoryChart({ nameHistory }: NameHistoryChartProps) {
   const width = 800;
   const height = 400;
   const padding = { top: 20, right: 40, bottom: 40, left: 40 };
-  const chart_width = width - padding.left - padding.right;
-  const chart_height = height - padding.top - padding.bottom;
-  const center_y = padding.top + chart_height / 2;
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const centerY = padding.top + chartHeight / 2;
 
-  const start_year = 1880;
-  const end_year = start_year + name_history.popularity_f.length - 1;
-  const year_range = end_year - start_year;
+  const startYear = 1880;
+  const endYear = startYear + nameHistory.popularityF.length - 1;
+  const yearRange = endYear - startYear;
 
-  const scale = chart_height / 2;
+  const scale = chartHeight / 2;
 
-  const get_x = (index: number) =>
-    padding.left +
-    (index / (name_history.popularity_f.length - 1)) * chart_width;
-  const get_y_f = (value: number) => center_y - value * scale;
-  const get_y_m = (value: number) => center_y + value * scale;
+  const getX = (index: number) =>
+    padding.left + (index / (nameHistory.popularityF.length - 1)) * chartWidth;
+  const getYF = (value: number) => centerY - value * scale;
+  const getYM = (value: number) => centerY + value * scale;
 
-  let path_f = `M ${get_x(0)} ${center_y}`;
-  for (let i = 0; i < name_history.popularity_f.length; i++) {
-    path_f += ` L ${get_x(i)} ${get_y_f(name_history.popularity_f[i])}`;
+  let pathF = `M ${getX(0)} ${centerY}`;
+  for (let i = 0; i < nameHistory.popularityF.length; i++) {
+    pathF += ` L ${getX(i)} ${getYF(nameHistory.popularityF[i])}`;
   }
-  path_f += ` L ${get_x(name_history.popularity_f.length - 1)} ${center_y} Z`;
+  pathF += ` L ${getX(nameHistory.popularityF.length - 1)} ${centerY} Z`;
 
-  let path_m = `M ${get_x(0)} ${center_y}`;
-  for (let i = 0; i < name_history.popularity_m.length; i++) {
-    path_m += ` L ${get_x(i)} ${get_y_m(name_history.popularity_m[i])}`;
+  let pathM = `M ${getX(0)} ${centerY}`;
+  for (let i = 0; i < nameHistory.popularityM.length; i++) {
+    pathM += ` L ${getX(i)} ${getYM(nameHistory.popularityM[i])}`;
   }
-  path_m += ` L ${get_x(name_history.popularity_m.length - 1)} ${center_y} Z`;
+  pathM += ` L ${getX(nameHistory.popularityM.length - 1)} ${centerY} Z`;
 
-  const grid_lines = [];
+  const gridLines = [];
   const labels = [];
-  for (let year = start_year; year <= end_year; year += 10) {
-    const x = padding.left + ((year - start_year) / year_range) * chart_width;
-    grid_lines.push(
+  for (let year = startYear; year <= endYear; year += 10) {
+    const x = padding.left + ((year - startYear) / yearRange) * chartWidth;
+    gridLines.push(
       <line
         key={year}
         x1={x}
         y1={padding.top}
         x2={x}
-        y2={padding.top + chart_height}
+        y2={padding.top + chartHeight}
         stroke="var(--theme-chart-grid-line)"
         strokeWidth="1"
       />,
     );
-    if ((year - start_year) % 20 === 0) {
+    if ((year - startYear) % 20 === 0) {
       labels.push(
         <text
           key={year}
           x={x}
-          y={padding.top + chart_height + 25}
+          y={padding.top + chartHeight + 25}
           fill="var(--theme-text)"
           fontSize="12"
           textAnchor="middle"
@@ -69,14 +68,14 @@ function NameHistoryChart({ name_history }: NameHistoryChartProps) {
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      {grid_lines}
-      <path d={path_f} fill="var(--theme-girl)" />
-      <path d={path_m} fill="var(--theme-boy)" />
+      {gridLines}
+      <path d={pathF} fill="var(--theme-girl)" />
+      <path d={pathM} fill="var(--theme-boy)" />
       <line
         x1={padding.left}
-        y1={center_y}
-        x2={padding.left + chart_width}
-        y2={center_y}
+        y1={centerY}
+        x2={padding.left + chartWidth}
+        y2={centerY}
         stroke="var(--theme-axis)"
         strokeWidth="2"
       />

@@ -12,178 +12,178 @@ interface StatisticUiProps {
   onChange: (statistic: Statistic | null) => void;
 }
 
-function StatisticUi({ value, onChange: on_change }: StatisticUiProps) {
-  const get_measurement_type = (m: Measurement | undefined): string => {
+function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
+  const getMeasurementType = (m: Measurement | undefined): string => {
     if (!m) return "";
     if (typeof m === "string") {
       return m;
     }
-    if ("Popularity" in m) return "Popularity";
-    if ("DenseRank" in m) return "DenseRank";
-    if ("Count" in m) return "Count";
+    if ("popularity" in m) return "Popularity";
+    if ("denseRank" in m) return "DenseRank";
+    if ("count" in m) return "Count";
     return "";
   };
 
-  const get_gender_selection = (m: Measurement | undefined): GenderSelection => {
-    if (!m || typeof m === "string") return "Both";
-    if ("Popularity" in m) return m.Popularity;
-    if ("DenseRank" in m) return m.DenseRank;
-    if ("Count" in m) return m.Count;
-    return "Both";
+  const getGenderSelection = (m: Measurement | undefined): GenderSelection => {
+    if (!m || typeof m === "string") return "both";
+    if ("popularity" in m) return m.popularity;
+    if ("denseRank" in m) return m.denseRank;
+    if ("count" in m) return m.count;
+    return "both";
   };
 
-  const [measurement_type, set_measurement_type] = useState<string>(
-    get_measurement_type(value?.measurement)
+  const [measurementType, setMeasurementType] = useState<string>(
+    getMeasurementType(value?.measurement)
   );
 
-  const [gender_selection, set_gender_selection] = useState<GenderSelection>(
-    get_gender_selection(value?.measurement)
+  const [genderSelection, setGenderSelection] = useState<GenderSelection>(
+    getGenderSelection(value?.measurement)
   );
 
-  const [selection_type, set_selection_type] = useState<string>(
-    value?.selection ? ("OneYear" in value.selection ? "OneYear" : "ManyYears") : ""
+  const [selectionType, setSelectionType] = useState<string>(
+    value?.selection ? ("oneYear" in value.selection ? "OneYear" : "ManyYears") : ""
   );
 
-  const [one_year, set_one_year] = useState<number>(
-    value?.selection && "OneYear" in value.selection ? value.selection.OneYear : 2000
+  const [oneYear, setOneYear] = useState<number>(
+    value?.selection && "oneYear" in value.selection ? value.selection.oneYear : 2000
   );
 
-  const [aggregate_function, set_aggregate_function] = useState<AggregateFunction>(
-    value?.selection && "ManyYears" in value.selection
-      ? value.selection.ManyYears.aggregate_function
-      : "Ave"
+  const [aggregateFunction, setAggregateFunction] = useState<AggregateFunction>(
+    value?.selection && "manyYears" in value.selection
+      ? value.selection.manyYears.aggregateFunction
+      : "ave"
   );
 
-  const get_range_type = (r: Range | undefined): string => {
+  const getRangeType = (r: Range | undefined): string => {
     if (!r) return "";
     if (typeof r === "string") {
       return r;
     }
-    if ("Generation" in r) return "Generation";
-    if ("Previous" in r) return "Previous";
-    if ("Between" in r) return "Between";
+    if ("generation" in r) return "Generation";
+    if ("previous" in r) return "Previous";
+    if ("between" in r) return "Between";
     return "";
   };
 
-  const [range_type, set_range_type] = useState<string>(
-    value?.selection && "ManyYears" in value.selection
-      ? get_range_type(value.selection.ManyYears.range)
+  const [rangeType, setRangeType] = useState<string>(
+    value?.selection && "manyYears" in value.selection
+      ? getRangeType(value.selection.manyYears.range)
       : ""
   );
 
-  const [generation, set_generation] = useState<Generation>(
-    value?.selection && "ManyYears" in value.selection && value.selection.ManyYears.range && typeof value.selection.ManyYears.range === "object" && "Generation" in value.selection.ManyYears.range
-      ? value.selection.ManyYears.range.Generation
-      : "Millennial"
+  const [generation, setGeneration] = useState<Generation>(
+    value?.selection && "manyYears" in value.selection && value.selection.manyYears.range && typeof value.selection.manyYears.range === "object" && "generation" in value.selection.manyYears.range
+      ? value.selection.manyYears.range.generation
+      : "millennial"
   );
 
-  const [previous, set_previous] = useState<number>(
-    value?.selection && "ManyYears" in value.selection && value.selection.ManyYears.range && typeof value.selection.ManyYears.range === "object" && "Previous" in value.selection.ManyYears.range
-      ? value.selection.ManyYears.range.Previous
+  const [previous, setPrevious] = useState<number>(
+    value?.selection && "manyYears" in value.selection && value.selection.manyYears.range && typeof value.selection.manyYears.range === "object" && "previous" in value.selection.manyYears.range
+      ? value.selection.manyYears.range.previous
       : 10
   );
 
-  const [between_start, set_between_start] = useState<number>(
-    value?.selection && "ManyYears" in value.selection && value.selection.ManyYears.range && typeof value.selection.ManyYears.range === "object" && "Between" in value.selection.ManyYears.range
-      ? value.selection.ManyYears.range.Between[0]
+  const [betweenStart, setBetweenStart] = useState<number>(
+    value?.selection && "manyYears" in value.selection && value.selection.manyYears.range && typeof value.selection.manyYears.range === "object" && "between" in value.selection.manyYears.range
+      ? value.selection.manyYears.range.between[0]
       : 2000
   );
 
-  const [between_end, set_between_end] = useState<number>(
-    value?.selection && "ManyYears" in value.selection && value.selection.ManyYears.range && typeof value.selection.ManyYears.range === "object" && "Between" in value.selection.ManyYears.range
-      ? value.selection.ManyYears.range.Between[1]
+  const [betweenEnd, setBetweenEnd] = useState<number>(
+    value?.selection && "manyYears" in value.selection && value.selection.manyYears.range && typeof value.selection.manyYears.range === "object" && "between" in value.selection.manyYears.range
+      ? value.selection.manyYears.range.between[1]
       : 2020
   );
 
-  const needs_gender_selection = measurement_type === "Popularity" || measurement_type === "DenseRank" || measurement_type === "Count";
+  const needsGenderSelection = measurementType === "Popularity" || measurementType === "DenseRank" || measurementType === "Count";
 
-  const update_statistic = (
-    new_measurement_type: string,
-    new_gender_selection: GenderSelection,
-    new_selection_type: string,
-    new_one_year: number,
-    new_aggregate_function: AggregateFunction,
-    new_range_type: string,
-    new_generation: Generation,
-    new_previous: number,
-    new_between_start: number,
-    new_between_end: number
+  const updateStatistic = (
+    newMeasurementType: string,
+    newGenderSelection: GenderSelection,
+    newSelectionType: string,
+    newOneYear: number,
+    newAggregateFunction: AggregateFunction,
+    newRangeType: string,
+    newGeneration: Generation,
+    newPrevious: number,
+    newBetweenStart: number,
+    newBetweenEnd: number
   ) => {
-    if (!new_measurement_type || !new_selection_type) {
-      on_change(null);
+    if (!newMeasurementType || !newSelectionType) {
+      onChange(null);
       return;
     }
 
     let measurement: Measurement;
-    if (new_measurement_type === "Popularity") {
-      measurement = { Popularity: new_gender_selection };
-    } else if (new_measurement_type === "DenseRank") {
-      measurement = { DenseRank: new_gender_selection };
-    } else if (new_measurement_type === "Count") {
-      measurement = { Count: new_gender_selection };
-    } else if (new_measurement_type === "Masculinity") {
-      measurement = "Masculinity";
-    } else if (new_measurement_type === "Femininity") {
-      measurement = "Femininity";
+    if (newMeasurementType === "Popularity") {
+      measurement = { popularity: newGenderSelection };
+    } else if (newMeasurementType === "DenseRank") {
+      measurement = { denseRank: newGenderSelection };
+    } else if (newMeasurementType === "Count") {
+      measurement = { count: newGenderSelection };
+    } else if (newMeasurementType === "Masculinity") {
+      measurement = "masculinity";
+    } else if (newMeasurementType === "Femininity") {
+      measurement = "femininity";
     } else {
-      measurement = "GenderNeutrality";
+      measurement = "genderNeutrality";
     }
 
     let selection: Selection;
-    if (new_selection_type === "OneYear") {
-      selection = { OneYear: new_one_year };
+    if (newSelectionType === "OneYear") {
+      selection = { oneYear: newOneYear };
     } else {
-      if (!new_range_type) {
-        on_change(null);
+      if (!newRangeType) {
+        onChange(null);
         return;
       }
 
       let range: Range;
-      if (new_range_type === "Generation") {
-        range = { Generation: new_generation };
-      } else if (new_range_type === "Previous") {
-        range = { Previous: new_previous };
-      } else if (new_range_type === "Between") {
-        range = { Between: [new_between_start, new_between_end] };
-      } else if (new_range_type === "AllLivingPeople") {
-        range = "AllLivingPeople";
+      if (newRangeType === "Generation") {
+        range = { generation: newGeneration };
+      } else if (newRangeType === "Previous") {
+        range = { previous: newPrevious };
+      } else if (newRangeType === "Between") {
+        range = { between: [newBetweenStart, newBetweenEnd] };
+      } else if (newRangeType === "AllLivingPeople") {
+        range = "allLivingPeople";
       } else {
-        range = "AllYears";
+        range = "allYears";
       }
 
       selection = {
-        ManyYears: {
-          aggregate_function: new_aggregate_function,
+        manyYears: {
+          aggregateFunction: newAggregateFunction,
           range: range,
         },
       };
     }
 
-    on_change({ measurement, selection });
+    onChange({ measurement, selection });
   };
 
   return (
     <div>
       <select
-        value={measurement_type}
+        value={measurementType}
         onChange={(e) => {
-          const new_type = e.target.value;
-          set_measurement_type(new_type);
-          if (!new_type) {
-            on_change(null);
+          const newType = e.target.value;
+          setMeasurementType(newType);
+          if (!newType) {
+            onChange(null);
             return;
           }
-          update_statistic(
-            new_type,
-            gender_selection,
-            selection_type,
-            one_year,
-            aggregate_function,
-            range_type,
+          updateStatistic(
+            newType,
+            genderSelection,
+            selectionType,
+            oneYear,
+            aggregateFunction,
+            rangeType,
             generation,
             previous,
-            between_start,
-            between_end
+            betweenStart,
+            betweenEnd
           );
         }}
       >
@@ -196,50 +196,50 @@ function StatisticUi({ value, onChange: on_change }: StatisticUiProps) {
         <option value="GenderNeutrality">GenderNeutrality</option>
       </select>
 
-      {needs_gender_selection && (
+      {needsGenderSelection && (
         <select
-          value={gender_selection}
+          value={genderSelection}
           onChange={(e) => {
-            const new_gender = e.target.value as GenderSelection;
-            set_gender_selection(new_gender);
-            update_statistic(
-              measurement_type,
-              new_gender,
-              selection_type,
-              one_year,
-              aggregate_function,
-              range_type,
+            const newGender = e.target.value as GenderSelection;
+            setGenderSelection(newGender);
+            updateStatistic(
+              measurementType,
+              newGender,
+              selectionType,
+              oneYear,
+              aggregateFunction,
+              rangeType,
               generation,
               previous,
-              between_start,
-              between_end
+              betweenStart,
+              betweenEnd
             );
           }}
         >
-          <option value="F">F</option>
-          <option value="M">M</option>
-          <option value="Both">Both</option>
+          <option value="f">F</option>
+          <option value="m">M</option>
+          <option value="both">Both</option>
         </select>
       )}
 
-      {measurement_type && (
+      {measurementType && (
         <>
           <select
-            value={selection_type}
+            value={selectionType}
             onChange={(e) => {
-              const new_type = e.target.value;
-              set_selection_type(new_type);
-              update_statistic(
-                measurement_type,
-                gender_selection,
-                new_type,
-                one_year,
-                aggregate_function,
-                range_type,
+              const newType = e.target.value;
+              setSelectionType(newType);
+              updateStatistic(
+                measurementType,
+                genderSelection,
+                newType,
+                oneYear,
+                aggregateFunction,
+                rangeType,
                 generation,
                 previous,
-                between_start,
-                between_end
+                betweenStart,
+                betweenEnd
               );
             }}
           >
@@ -248,72 +248,72 @@ function StatisticUi({ value, onChange: on_change }: StatisticUiProps) {
             <option value="ManyYears">ManyYears</option>
           </select>
 
-          {selection_type === "OneYear" && (
+          {selectionType === "OneYear" && (
             <input
               type="number"
-              value={one_year}
+              value={oneYear}
               onChange={(e) => {
-                const new_year = parseInt(e.target.value) || 2000;
-                set_one_year(new_year);
-                update_statistic(
-                  measurement_type,
-                  gender_selection,
-                  selection_type,
-                  new_year,
-                  aggregate_function,
-                  range_type,
+                const newYear = parseInt(e.target.value) || 2000;
+                setOneYear(newYear);
+                updateStatistic(
+                  measurementType,
+                  genderSelection,
+                  selectionType,
+                  newYear,
+                  aggregateFunction,
+                  rangeType,
                   generation,
                   previous,
-                  between_start,
-                  between_end
+                  betweenStart,
+                  betweenEnd
                 );
               }}
             />
           )}
 
-          {selection_type === "ManyYears" && (
+          {selectionType === "ManyYears" && (
             <>
               <select
-                value={aggregate_function}
+                value={aggregateFunction}
                 onChange={(e) => {
-                  const new_agg = e.target.value as AggregateFunction;
-                  set_aggregate_function(new_agg);
-                  update_statistic(
-                    measurement_type,
-                    gender_selection,
-                    selection_type,
-                    one_year,
-                    new_agg,
-                    range_type,
+                  const newAgg = e.target.value as AggregateFunction;
+                  setAggregateFunction(newAgg);
+                  updateStatistic(
+                    measurementType,
+                    genderSelection,
+                    selectionType,
+                    oneYear,
+                    newAgg,
+                    rangeType,
                     generation,
                     previous,
-                    between_start,
-                    between_end
+                    betweenStart,
+                    betweenEnd
                   );
                 }}
               >
-                <option value="Ave">Ave</option>
-                <option value="Min">Min</option>
-                <option value="Max">Max</option>
-                <option value="Trend">Trend</option>
+                <option value="ave">Ave</option>
+                <option value="min">Min</option>
+                <option value="max">Max</option>
+                <option value="trend">Trend</option>
               </select>
 
               <select
-                value={range_type}
+                value={rangeType}
                 onChange={(e) => {
-                  const new_range_type = e.target.value;
-                  set_range_type(new_range_type);
-                  update_statistic(
-                    measurement_type,
-                    gender_selection,
-                    selection_type,
-                    one_year,
-                    aggregate_function,
-                    new_range_type,
+                  const newRangeType = e.target.value;
+                  setRangeType(newRangeType);
+                  updateStatistic(
+                    measurementType,
+                    genderSelection,
+                    selectionType,
+                    oneYear,
+                    aggregateFunction,
+                    newRangeType,
                     generation,
                     previous,
-                    between_start,
-                    between_end
+                    betweenStart,
+                    betweenEnd
                   );
                 }}
               >
@@ -325,99 +325,99 @@ function StatisticUi({ value, onChange: on_change }: StatisticUiProps) {
                 <option value="AllYears">AllYears</option>
               </select>
 
-              {range_type === "Generation" && (
+              {rangeType === "Generation" && (
                 <select
                   value={generation}
                   onChange={(e) => {
-                    const new_gen = e.target.value as Generation;
-                    set_generation(new_gen);
-                    update_statistic(
-                      measurement_type,
-                      gender_selection,
-                      selection_type,
-                      one_year,
-                      aggregate_function,
-                      range_type,
-                      new_gen,
+                    const newGen = e.target.value as Generation;
+                    setGeneration(newGen);
+                    updateStatistic(
+                      measurementType,
+                      genderSelection,
+                      selectionType,
+                      oneYear,
+                      aggregateFunction,
+                      rangeType,
+                      newGen,
                       previous,
-                      between_start,
-                      between_end
+                      betweenStart,
+                      betweenEnd
                     );
                   }}
                 >
-                  <option value="Lost">Lost</option>
-                  <option value="Greatest">Greatest</option>
-                  <option value="Silent">Silent</option>
-                  <option value="Boomer">Boomer</option>
-                  <option value="X">X</option>
-                  <option value="Millennial">Millennial</option>
-                  <option value="Z">Z</option>
-                  <option value="Alpha">Alpha</option>
+                  <option value="lost">Lost</option>
+                  <option value="greatest">Greatest</option>
+                  <option value="silent">Silent</option>
+                  <option value="boomer">Boomer</option>
+                  <option value="x">X</option>
+                  <option value="millennial">Millennial</option>
+                  <option value="z">Z</option>
+                  <option value="alpha">Alpha</option>
                 </select>
               )}
 
-              {range_type === "Previous" && (
+              {rangeType === "Previous" && (
                 <input
                   type="number"
                   value={previous}
                   onChange={(e) => {
-                    const new_prev = parseInt(e.target.value) || 10;
-                    set_previous(new_prev);
-                    update_statistic(
-                      measurement_type,
-                      gender_selection,
-                      selection_type,
-                      one_year,
-                      aggregate_function,
-                      range_type,
+                    const newPrev = parseInt(e.target.value) || 10;
+                    setPrevious(newPrev);
+                    updateStatistic(
+                      measurementType,
+                      genderSelection,
+                      selectionType,
+                      oneYear,
+                      aggregateFunction,
+                      rangeType,
                       generation,
-                      new_prev,
-                      between_start,
-                      between_end
+                      newPrev,
+                      betweenStart,
+                      betweenEnd
                     );
                   }}
                 />
               )}
 
-              {range_type === "Between" && (
+              {rangeType === "Between" && (
                 <>
                   <input
                     type="number"
-                    value={between_start}
+                    value={betweenStart}
                     onChange={(e) => {
-                      const new_start = parseInt(e.target.value) || 2000;
-                      set_between_start(new_start);
-                      update_statistic(
-                        measurement_type,
-                        gender_selection,
-                        selection_type,
-                        one_year,
-                        aggregate_function,
-                        range_type,
+                      const newStart = parseInt(e.target.value) || 2000;
+                      setBetweenStart(newStart);
+                      updateStatistic(
+                        measurementType,
+                        genderSelection,
+                        selectionType,
+                        oneYear,
+                        aggregateFunction,
+                        rangeType,
                         generation,
                         previous,
-                        new_start,
-                        between_end
+                        newStart,
+                        betweenEnd
                       );
                     }}
                   />
                   <input
                     type="number"
-                    value={between_end}
+                    value={betweenEnd}
                     onChange={(e) => {
-                      const new_end = parseInt(e.target.value) || 2020;
-                      set_between_end(new_end);
-                      update_statistic(
-                        measurement_type,
-                        gender_selection,
-                        selection_type,
-                        one_year,
-                        aggregate_function,
-                        range_type,
+                      const newEnd = parseInt(e.target.value) || 2020;
+                      setBetweenEnd(newEnd);
+                      updateStatistic(
+                        measurementType,
+                        genderSelection,
+                        selectionType,
+                        oneYear,
+                        aggregateFunction,
+                        rangeType,
                         generation,
                         previous,
-                        between_start,
-                        new_end
+                        betweenStart,
+                        newEnd
                       );
                     }}
                   />

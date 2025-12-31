@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::{Write, write};
+use std::fmt::Write;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use duckdb::{ToSql, types::ToSqlOutput};
@@ -56,6 +56,7 @@ impl ToSql for F64Number {
 }
 
 #[derive(Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct SearchNamesRequest {
     pub text_query: Option<TextQuery>,
@@ -64,6 +65,7 @@ pub struct SearchNamesRequest {
 }
 
 #[derive(Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct TextQuery {
     pub query: String,
@@ -71,6 +73,7 @@ pub struct TextQuery {
 }
 
 #[derive(Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum SearchMethod {
     Contains,
@@ -79,6 +82,7 @@ pub enum SearchMethod {
 }
 
 #[derive(Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct Filter {
     pub statistic: Statistic,
@@ -86,6 +90,7 @@ pub struct Filter {
 }
 
 #[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct Statistic {
     pub measurement: Measurement,
@@ -93,6 +98,7 @@ pub struct Statistic {
 }
 
 #[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum Measurement {
     Popularity(GenderSelection),
@@ -135,6 +141,7 @@ impl Measurement {
 }
 
 #[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum GenderSelection {
     F,
@@ -143,9 +150,11 @@ pub enum GenderSelection {
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum Selection {
     OneYear(u16),
+    #[serde(rename_all = "camelCase")]
     ManyYears {
         aggregate_function: AggregateFunction,
         range: Range,
@@ -162,6 +171,7 @@ impl Selection {
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum AggregateFunction {
     Ave,
@@ -183,6 +193,7 @@ fn render_year_range_query(min_year_param: String, max_year_param: String) -> St
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum Range {
     Generation(Generation),
@@ -232,6 +243,7 @@ impl Range {
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum Generation {
     Lost,
@@ -260,6 +272,7 @@ impl Generation {
 }
 
 #[derive(Deserialize, Serialize, TS, Hash)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub enum Comparison {
     Gt(F64Number),
@@ -267,12 +280,14 @@ pub enum Comparison {
 }
 
 #[derive(Clone, Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct SearchNamesResponse {
     pub names: Vec<NameData>,
 }
 
 #[derive(Clone, Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct NameData {
     pub name: String,

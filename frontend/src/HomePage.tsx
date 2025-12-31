@@ -9,83 +9,83 @@ import FilterUi from "./FilterUi";
 import StatisticUi from "./StatisticUi";
 
 function HomePage() {
-  const [query, set_query] = useState("");
-  const [method, set_method] = useState<SearchMethod>("Contains");
-  const [results, set_results] = useState<NameData[]>([]);
-  const [loading, set_loading] = useState(false);
-  const [filters, set_filters] = useState<Filter[]>([]);
-  const [sort, set_sort] = useState<Statistic | null>(null);
+  const [query, setQuery] = useState("");
+  const [method, setMethod] = useState<SearchMethod>("contains");
+  const [results, setResults] = useState<NameData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState<Filter[]>([]);
+  const [sort, setSort] = useState<Statistic | null>(null);
 
-  const handle_search = async () => {
-    const trimmed_query = query.trim();
+  const handleSearch = async () => {
+    const trimmedQuery = query.trim();
 
-    set_loading(true);
+    setLoading(true);
     try {
       const result = await api.search_names.query({
-        text_query: trimmed_query
-          ? { query: trimmed_query, method: method }
+        textQuery: trimmedQuery
+          ? { query: trimmedQuery, method: method }
           : null,
         filters: filters,
         sort: sort,
       });
 
       if ("Ok" in result) {
-        set_results(result.Ok.names);
+        setResults(result.Ok.names);
       } else {
         console.error("Error searching names:", result.Err);
-        set_results([]);
+        setResults([]);
       }
     } catch (error) {
       console.error("Failed to search names:", error);
-      set_results([]);
+      setResults([]);
     } finally {
-      set_loading(false);
+      setLoading(false);
     }
   };
 
-  const handle_submit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handle_search();
+    handleSearch();
   };
 
-  const add_filter = () => {
-    set_filters([
+  const addFilter = () => {
+    setFilters([
       ...filters,
       {
         statistic: {
-          measurement: { Popularity: "Both" },
-          selection: { OneYear: 2000 },
+          measurement: { popularity: "both" },
+          selection: { oneYear: 2000 },
         },
-        comparison: { Gt: 0 },
+        comparison: { gt: 0 },
       },
     ]);
   };
 
-  const update_filter = (index: number, filter: Filter) => {
-    const new_filters = [...filters];
-    new_filters[index] = filter;
-    set_filters(new_filters);
+  const updateFilter = (index: number, filter: Filter) => {
+    const newFilters = [...filters];
+    newFilters[index] = filter;
+    setFilters(newFilters);
   };
 
-  const remove_filter = (index: number) => {
-    set_filters(filters.filter((_, i) => i !== index));
+  const removeFilter = (index: number) => {
+    setFilters(filters.filter((_, i) => i !== index));
   };
 
   return (
     <div>
-      <form onSubmit={handle_submit}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={query}
-          onChange={(e) => set_query(e.target.value)}
+          onChange={(e) => setQuery(e.target.value)}
         />
         <select
           value={method}
-          onChange={(e) => set_method(e.target.value as SearchMethod)}
+          onChange={(e) => setMethod(e.target.value as SearchMethod)}
         >
-          <option value="Contains">Contains</option>
-          <option value="StartsWith">StartsWith</option>
-          <option value="RegExp">RegExp</option>
+          <option value="contains">Contains</option>
+          <option value="startsWith">StartsWith</option>
+          <option value="regExp">RegExp</option>
         </select>
         <button type="submit" disabled={loading}>
           Search
@@ -98,18 +98,18 @@ function HomePage() {
           <FilterUi
             key={index}
             value={filter}
-            onChange={(f) => update_filter(index, f)}
-            onRemove={() => remove_filter(index)}
+            onChange={(f) => updateFilter(index, f)}
+            onRemove={() => removeFilter(index)}
           />
         ))}
-        <button type="button" onClick={add_filter}>
+        <button type="button" onClick={addFilter}>
           Add Filter
         </button>
       </div>
 
       <div>
         <h3>Sort</h3>
-        <StatisticUi value={sort} onChange={set_sort} />
+        <StatisticUi value={sort} onChange={setSort} />
       </div>
 
       {results.map((name) => (

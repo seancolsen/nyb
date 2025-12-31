@@ -2,4 +2,4 @@
 import type { AggregateFunction } from "./AggregateFunction";
 import type { Range } from "./Range";
 
-export type Selection = { "OneYear": number } | { "ManyYears": { aggregate_function: AggregateFunction, range: Range, } };
+export type Selection = { "oneYear": number } | { "manyYears": { aggregateFunction: AggregateFunction, range: Range, } };
