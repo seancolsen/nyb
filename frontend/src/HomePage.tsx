@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Input, Select, Button } from "antd";
 import { api } from "./api";
 import type { SearchMethod } from "./api_types/SearchMethod";
 import type { NameData } from "./api_types";
@@ -74,22 +75,24 @@ function HomePage() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <input
+        <Input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          style={{ width: 200 }}
         />
-        <select
+        <Select
           value={method}
-          onChange={(e) => setMethod(e.target.value as SearchMethod)}
+          onChange={(value) => setMethod(value as SearchMethod)}
+          style={{ width: 150 }}
         >
-          <option value="contains">Contains</option>
-          <option value="startsWith">StartsWith</option>
-          <option value="regExp">RegExp</option>
-        </select>
-        <button type="submit" disabled={loading}>
+          <Select.Option value="contains">Contains</Select.Option>
+          <Select.Option value="startsWith">StartsWith</Select.Option>
+          <Select.Option value="regExp">RegExp</Select.Option>
+        </Select>
+        <Button type="primary" htmlType="submit" disabled={loading}>
           Search
-        </button>
+        </Button>
       </form>
 
       <div>
@@ -102,9 +105,7 @@ function HomePage() {
             onRemove={() => removeFilter(index)}
           />
         ))}
-        <button type="button" onClick={addFilter}>
-          Add Filter
-        </button>
+        <Button onClick={addFilter}>Add Filter</Button>
       </div>
 
       <div>
