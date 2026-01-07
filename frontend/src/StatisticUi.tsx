@@ -3,10 +3,10 @@ import { Select, InputNumber } from "antd";
 import type { Statistic } from "./api_types/Statistic";
 import type { Measurement } from "./api_types/Measurement";
 import type { Selection } from "./api_types/Selection";
-import type { GenderSelection } from "./api_types/GenderSelection";
 import type { AggregateFunction } from "./api_types/AggregateFunction";
 import type { Range } from "./api_types/Range";
 import type { Generation } from "./api_types/Generation";
+import MeasurementUi from "./MeasurementUi";
 
 interface StatisticUiProps {
   value: Statistic | null;
@@ -25,20 +25,8 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
     return "";
   };
 
-  const getGenderSelection = (m: Measurement | undefined): GenderSelection => {
-    if (!m || typeof m === "string") return "both";
-    if ("popularity" in m) return m.popularity;
-    if ("denseRank" in m) return m.denseRank;
-    if ("count" in m) return m.count;
-    return "both";
-  };
-
   const [measurementType, setMeasurementType] = useState<string>(
     getMeasurementType(value?.measurement),
-  );
-
-  const [genderSelection, setGenderSelection] = useState<GenderSelection>(
-    getGenderSelection(value?.measurement),
   );
 
   const [selectionType, setSelectionType] = useState<string>(
@@ -118,14 +106,8 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
       : 2020,
   );
 
-  const needsGenderSelection =
-    measurementType === "Popularity" ||
-    measurementType === "DenseRank" ||
-    measurementType === "Count";
-
   const updateStatistic = (
-    newMeasurementType: string,
-    newGenderSelection: GenderSelection,
+    newMeasurement: Measurement | undefined,
     newSelectionType: string,
     newOneYear: number,
     newAggregateFunction: AggregateFunction,
@@ -135,25 +117,12 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
     newBetweenStart: number,
     newBetweenEnd: number,
   ) => {
-    if (!newMeasurementType || !newSelectionType) {
+    if (!newMeasurement || !newSelectionType) {
       onChange(null);
       return;
     }
 
-    let measurement: Measurement;
-    if (newMeasurementType === "Popularity") {
-      measurement = { popularity: newGenderSelection };
-    } else if (newMeasurementType === "DenseRank") {
-      measurement = { denseRank: newGenderSelection };
-    } else if (newMeasurementType === "Count") {
-      measurement = { count: newGenderSelection };
-    } else if (newMeasurementType === "Masculinity") {
-      measurement = "masculinity";
-    } else if (newMeasurementType === "Femininity") {
-      measurement = "femininity";
-    } else {
-      measurement = "genderNeutrality";
-    }
+    const measurement = newMeasurement;
 
     let selection: Selection;
     if (newSelectionType === "OneYear") {
@@ -188,65 +157,28 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
     onChange({ measurement, selection });
   };
 
+  const handleMeasurementChange = (newMeasurement: Measurement | undefined) => {
+    const newMeasurementType = getMeasurementType(newMeasurement);
+    setMeasurementType(newMeasurementType);
+    updateStatistic(
+      newMeasurement,
+      selectionType,
+      oneYear,
+      aggregateFunction,
+      rangeType,
+      generation,
+      previous,
+      betweenStart,
+      betweenEnd,
+    );
+  };
+
   return (
     <div>
-      <Select
-        value={measurementType || undefined}
-        placeholder="Select Measurement"
-        onChange={(newType) => {
-          setMeasurementType(newType);
-          if (!newType) {
-            onChange(null);
-            return;
-          }
-          updateStatistic(
-            newType,
-            genderSelection,
-            selectionType,
-            oneYear,
-            aggregateFunction,
-            rangeType,
-            generation,
-            previous,
-            betweenStart,
-            betweenEnd,
-          );
-        }}
-        popupMatchSelectWidth={false}
-      >
-        <Select.Option value="Popularity">Popularity</Select.Option>
-        <Select.Option value="DenseRank">DenseRank</Select.Option>
-        <Select.Option value="Count">Count</Select.Option>
-        <Select.Option value="Masculinity">Masculinity</Select.Option>
-        <Select.Option value="Femininity">Femininity</Select.Option>
-        <Select.Option value="GenderNeutrality">GenderNeutrality</Select.Option>
-      </Select>
-
-      {needsGenderSelection && (
-        <Select
-          value={genderSelection}
-          onChange={(newGender) => {
-            setGenderSelection(newGender as GenderSelection);
-            updateStatistic(
-              measurementType,
-              newGender as GenderSelection,
-              selectionType,
-              oneYear,
-              aggregateFunction,
-              rangeType,
-              generation,
-              previous,
-              betweenStart,
-              betweenEnd,
-            );
-          }}
-          popupMatchSelectWidth={false}
-        >
-          <Select.Option value="f">F</Select.Option>
-          <Select.Option value="m">M</Select.Option>
-          <Select.Option value="both">Both</Select.Option>
-        </Select>
-      )}
+      <MeasurementUi
+        value={value?.measurement}
+        onChange={handleMeasurementChange}
+      />
 
       {measurementType && (
         <>
@@ -256,8 +188,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
             onChange={(newType) => {
               setSelectionType(newType);
               updateStatistic(
-                measurementType,
-                genderSelection,
+                value?.measurement,
                 newType,
                 oneYear,
                 aggregateFunction,
@@ -277,12 +208,11 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
           {selectionType === "OneYear" && (
             <InputNumber
               value={oneYear}
-              onChange={(value) => {
-                const newYear = value || 2000;
+              onChange={(yearValue) => {
+                const newYear = yearValue || 2000;
                 setOneYear(newYear);
                 updateStatistic(
-                  measurementType,
-                  genderSelection,
+                  value?.measurement,
                   selectionType,
                   newYear,
                   aggregateFunction,
@@ -305,8 +235,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                 onChange={(newAgg) => {
                   setAggregateFunction(newAgg as AggregateFunction);
                   updateStatistic(
-                    measurementType,
-                    genderSelection,
+                    value?.measurement,
                     selectionType,
                     oneYear,
                     newAgg as AggregateFunction,
@@ -331,8 +260,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                 onChange={(newRangeType) => {
                   setRangeType(newRangeType);
                   updateStatistic(
-                    measurementType,
-                    genderSelection,
+                    value?.measurement,
                     selectionType,
                     oneYear,
                     aggregateFunction,
@@ -360,8 +288,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                   onChange={(newGen) => {
                     setGeneration(newGen as Generation);
                     updateStatistic(
-                      measurementType,
-                      genderSelection,
+                      value?.measurement,
                       selectionType,
                       oneYear,
                       aggregateFunction,
@@ -388,12 +315,11 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
               {rangeType === "Previous" && (
                 <InputNumber
                   value={previous}
-                  onChange={(value) => {
-                    const newPrev = value || 10;
+                  onChange={(prevValue) => {
+                    const newPrev = prevValue || 10;
                     setPrevious(newPrev);
                     updateStatistic(
-                      measurementType,
-                      genderSelection,
+                      value?.measurement,
                       selectionType,
                       oneYear,
                       aggregateFunction,
@@ -413,12 +339,11 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                 <>
                   <InputNumber
                     value={betweenStart}
-                    onChange={(value) => {
-                      const newStart = value || 2000;
+                    onChange={(startValue) => {
+                      const newStart = startValue || 2000;
                       setBetweenStart(newStart);
                       updateStatistic(
-                        measurementType,
-                        genderSelection,
+                        value?.measurement,
                         selectionType,
                         oneYear,
                         aggregateFunction,
@@ -434,12 +359,11 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                   />
                   <InputNumber
                     value={betweenEnd}
-                    onChange={(value) => {
-                      const newEnd = value || 2020;
+                    onChange={(endValue) => {
+                      const newEnd = endValue || 2020;
                       setBetweenEnd(newEnd);
                       updateStatistic(
-                        measurementType,
-                        genderSelection,
+                        value?.measurement,
                         selectionType,
                         oneYear,
                         aggregateFunction,
