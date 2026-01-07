@@ -1,27 +1,27 @@
 import { Select } from "antd";
 import type { GenderSelection } from "./api_types/GenderSelection";
+import { buildOptions } from "./utils";
 
 interface GenderSelectionUiProps {
-  value: GenderSelection | undefined;
+  value: GenderSelection;
   onChange: (genderSelection: GenderSelection) => void;
 }
+
+const options: Record<GenderSelection, string> = {
+  f: "For girls",
+  m: "For boys",
+  both: "For girls & boys",
+};
 
 function GenderSelectionUi({ value, onChange }: GenderSelectionUiProps) {
   return (
     <Select
-      value={value || "both"}
-      onChange={(newGender) => {
-        const selectedGender = (newGender as GenderSelection) || "both";
-        onChange(selectedGender);
-      }}
+      value={value}
+      onChange={onChange}
       popupMatchSelectWidth={false}
-    >
-      <Select.Option value="f">F</Select.Option>
-      <Select.Option value="m">M</Select.Option>
-      <Select.Option value="both">Both</Select.Option>
-    </Select>
+      options={buildOptions(options)}
+    />
   );
 }
 
 export default GenderSelectionUi;
-
