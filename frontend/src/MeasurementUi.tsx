@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Select } from "antd";
 import type { Measurement } from "./api_types/Measurement";
 import type { GenderSelection } from "./api_types/GenderSelection";
+import GenderSelectionUi from "./GenderSelectionUi";
 
 interface MeasurementUiProps {
   value: Measurement | undefined;
@@ -32,19 +33,12 @@ function MeasurementUi({ value, onChange }: MeasurementUiProps) {
     getMeasurementType(value),
   );
 
-  const [genderSelection, setGenderSelection] = useState<GenderSelection>(
-    getGenderSelection(value),
-  );
-
   const needsGenderSelection =
     measurementType === "Popularity" ||
     measurementType === "DenseRank" ||
     measurementType === "Count";
 
-  const updateMeasurement = (
-    newMeasurementType: string,
-    newGenderSelection: GenderSelection,
-  ) => {
+  const handleMeasurementTypeChange = (newMeasurementType: string) => {
     if (!newMeasurementType) {
       onChange(undefined);
       return;
@@ -52,17 +46,35 @@ function MeasurementUi({ value, onChange }: MeasurementUiProps) {
 
     let measurement: Measurement;
     if (newMeasurementType === "Popularity") {
-      measurement = { popularity: newGenderSelection };
+      measurement = { popularity: getGenderSelection(value) };
     } else if (newMeasurementType === "DenseRank") {
-      measurement = { denseRank: newGenderSelection };
+      measurement = { denseRank: getGenderSelection(value) };
     } else if (newMeasurementType === "Count") {
-      measurement = { count: newGenderSelection };
+      measurement = { count: getGenderSelection(value) };
     } else if (newMeasurementType === "Masculinity") {
       measurement = "masculinity";
     } else if (newMeasurementType === "Femininity") {
       measurement = "femininity";
     } else {
       measurement = "genderNeutrality";
+    }
+
+    onChange(measurement);
+  };
+
+  const handleGenderSelectionChange = (newGenderSelection: GenderSelection) => {
+    if (!measurementType) return;
+
+    let measurement: Measurement;
+    if (measurementType === "Popularity") {
+      measurement = { popularity: newGenderSelection };
+    } else if (measurementType === "DenseRank") {
+      measurement = { denseRank: newGenderSelection };
+    } else if (measurementType === "Count") {
+      measurement = { count: newGenderSelection };
+    } else {
+      // Should not happen, but handle gracefully
+      return;
     }
 
     onChange(measurement);
@@ -75,11 +87,7 @@ function MeasurementUi({ value, onChange }: MeasurementUiProps) {
         placeholder="Select Measurement"
         onChange={(newType) => {
           setMeasurementType(newType);
-          if (!newType) {
-            onChange(undefined);
-            return;
-          }
-          updateMeasurement(newType, genderSelection);
+          handleMeasurementTypeChange(newType);
         }}
         popupMatchSelectWidth={false}
       >
@@ -92,22 +100,13 @@ function MeasurementUi({ value, onChange }: MeasurementUiProps) {
       </Select>
 
       {needsGenderSelection && (
-        <Select
-          value={genderSelection}
-          onChange={(newGender) => {
-            setGenderSelection(newGender as GenderSelection);
-            updateMeasurement(measurementType, newGender as GenderSelection);
-          }}
-          popupMatchSelectWidth={false}
-        >
-          <Select.Option value="f">F</Select.Option>
-          <Select.Option value="m">M</Select.Option>
-          <Select.Option value="both">Both</Select.Option>
-        </Select>
+        <GenderSelectionUi
+          value={getGenderSelection(value)}
+          onChange={handleGenderSelectionChange}
+        />
       )}
     </>
   );
 }
 
 export default MeasurementUi;
-
