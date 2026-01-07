@@ -3,4 +3,8 @@ import type { Filter } from "./Filter";
 import type { Statistic } from "./Statistic";
 import type { TextQuery } from "./TextQuery";
 
-export type SearchNamesRequest = { textQuery: TextQuery | null, filters: Array<Filter>, sort: Statistic | null, };
+export type SearchNamesRequest = {
+  textQuery: TextQuery | null;
+  filters: Array<Filter>;
+  sort: Statistic | null;
+};

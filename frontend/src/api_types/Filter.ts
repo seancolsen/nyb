@@ -2,4 +2,4 @@
 import type { Comparison } from "./Comparison";
 import type { Statistic } from "./Statistic";
 
-export type Filter = { statistic: Statistic, comparison: Comparison, };
+export type Filter = { statistic: Statistic; comparison: Comparison };

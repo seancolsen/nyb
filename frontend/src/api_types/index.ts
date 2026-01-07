@@ -30,4 +30,13 @@ export type { TextQuery } from "./TextQuery.ts";
 export type { Statistic } from "./Statistic.ts";
 export type { SearchNamesRequest } from "./SearchNamesRequest.ts";
 
-export type QubitServer = { get_name_history: Query<[request: GetNameHistoryRequest, ], { Ok : NameHistoryData } | { Err : string }>, search_names: Query<[request: SearchNamesRequest, ], { Ok : SearchNamesResponse } | { Err : string }> };
+export type QubitServer = {
+  get_name_history: Query<
+    [request: GetNameHistoryRequest],
+    { Ok: NameHistoryData } | { Err: string }
+  >;
+  search_names: Query<
+    [request: SearchNamesRequest],
+    { Ok: SearchNamesResponse } | { Err: string }
+  >;
+};

@@ -2,4 +2,4 @@
 import type { Measurement } from "./Measurement";
 import type { Selection } from "./Selection";
 
-export type Statistic = { measurement: Measurement, selection: Selection, };
+export type Statistic = { measurement: Measurement; selection: Selection };
