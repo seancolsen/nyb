@@ -3,20 +3,23 @@ import type { GenderSelection } from "./api_types/GenderSelection";
 import { buildOptions } from "./utils";
 
 interface GenderSelectionUiProps {
-  value: GenderSelection;
+  genderSelection: GenderSelection;
   onChange: (genderSelection: GenderSelection) => void;
 }
 
 const options: Record<GenderSelection, string> = {
-  f: "For girls",
-  m: "For boys",
-  both: "For girls & boys",
+  f: "for girls",
+  m: "for boys",
+  both: "for everyone",
 };
 
-function GenderSelectionUi({ value, onChange }: GenderSelectionUiProps) {
+function GenderSelectionUi({
+  genderSelection,
+  onChange,
+}: GenderSelectionUiProps) {
   return (
     <Select
-      value={value}
+      value={genderSelection}
       onChange={onChange}
       popupMatchSelectWidth={false}
       options={buildOptions(options)}

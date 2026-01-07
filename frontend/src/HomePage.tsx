@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input, Select, Button } from "antd";
+import { Input, Button } from "antd";
 import { api } from "./api";
 import type { SearchMethod } from "./api_types/SearchMethod";
 import type { NameData } from "./api_types";
@@ -8,6 +8,21 @@ import type { Statistic } from "./api_types/Statistic";
 import NameResult from "./NameResult";
 import FilterUi from "./FilterUi";
 import StatisticUi from "./StatisticUi";
+import SearchMethodUi from "./SearchMethodUi";
+
+function getDefaultSort(): Statistic {
+  return {
+    measurement: { type: "popularity", genderSelection: "both" },
+    selection: { type: "oneYear", year: 2000 },
+  };
+}
+
+function getDefaultFilter(): Filter {
+  return {
+    statistic: getDefaultSort(),
+    comparison: { type: "gt", value: 0 },
+  };
+}
 
 function HomePage() {
   const [query, setQuery] = useState("");
@@ -15,7 +30,7 @@ function HomePage() {
   const [results, setResults] = useState<NameData[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filter[]>([]);
-  const [sort, setSort] = useState<Statistic | null>(null);
+  const [sort, setSort] = useState<Statistic>(getDefaultSort());
 
   const handleSearch = async () => {
     const trimmedQuery = query.trim();
@@ -50,16 +65,7 @@ function HomePage() {
   };
 
   const addFilter = () => {
-    setFilters([
-      ...filters,
-      {
-        statistic: {
-          measurement: { type: "popularity", genderSelection: "both" },
-          selection: { type: "oneYear", year: 2000 },
-        },
-        comparison: { type: "gt", value: 0 },
-      },
-    ]);
+    setFilters([...filters, getDefaultFilter()]);
   };
 
   const updateFilter = (index: number, filter: Filter) => {
@@ -81,15 +87,7 @@ function HomePage() {
           onChange={(e) => setQuery(e.target.value)}
           style={{ width: 200 }}
         />
-        <Select
-          value={method}
-          onChange={(value) => setMethod(value as SearchMethod)}
-          style={{ width: 150 }}
-        >
-          <Select.Option value="contains">Contains</Select.Option>
-          <Select.Option value="startsWith">StartsWith</Select.Option>
-          <Select.Option value="regExp">RegExp</Select.Option>
-        </Select>
+        <SearchMethodUi searchMethod={method} onChange={setMethod} />
         <Button type="primary" htmlType="submit" disabled={loading}>
           Search
         </Button>
@@ -100,7 +98,7 @@ function HomePage() {
         {filters.map((filter, index) => (
           <FilterUi
             key={index}
-            value={filter}
+            filter={filter}
             onChange={(f) => updateFilter(index, f)}
             onRemove={() => removeFilter(index)}
           />
@@ -110,7 +108,7 @@ function HomePage() {
 
       <div>
         <h3>Sort</h3>
-        <StatisticUi value={sort} onChange={setSort} />
+        <StatisticUi statistic={sort} onChange={setSort} />
       </div>
 
       {results.map((name) => (
