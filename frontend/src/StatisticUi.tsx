@@ -212,7 +212,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
             betweenEnd,
           );
         }}
-        style={{ width: 200 }}
+        popupMatchSelectWidth={false}
       >
         <Select.Option value="Popularity">Popularity</Select.Option>
         <Select.Option value="DenseRank">DenseRank</Select.Option>
@@ -240,7 +240,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
               betweenEnd,
             );
           }}
-          style={{ width: 120 }}
+          popupMatchSelectWidth={false}
         >
           <Select.Option value="f">F</Select.Option>
           <Select.Option value="m">M</Select.Option>
@@ -268,7 +268,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                 betweenEnd,
               );
             }}
-            style={{ width: 200 }}
+            popupMatchSelectWidth={false}
           >
             <Select.Option value="OneYear">OneYear</Select.Option>
             <Select.Option value="ManyYears">ManyYears</Select.Option>
@@ -293,7 +293,8 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                   betweenEnd,
                 );
               }}
-              style={{ width: 120 }}
+              controls={false}
+              style={{ width: 60 }}
             />
           )}
 
@@ -316,7 +317,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                     betweenEnd,
                   );
                 }}
-                style={{ width: 120 }}
+                popupMatchSelectWidth={false}
               >
                 <Select.Option value="ave">Ave</Select.Option>
                 <Select.Option value="min">Min</Select.Option>
@@ -342,7 +343,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                     betweenEnd,
                   );
                 }}
-                style={{ width: 200 }}
+                popupMatchSelectWidth={false}
               >
                 <Select.Option value="Generation">Generation</Select.Option>
                 <Select.Option value="Previous">Previous</Select.Option>
@@ -371,7 +372,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                       betweenEnd,
                     );
                   }}
-                  style={{ width: 150 }}
+                  popupMatchSelectWidth={false}
                 >
                   <Select.Option value="lost">Lost</Select.Option>
                   <Select.Option value="greatest">Greatest</Select.Option>
@@ -403,7 +404,8 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                       betweenEnd,
                     );
                   }}
-                  style={{ width: 120 }}
+                  controls={false}
+                  style={{ width: 60 }}
                 />
               )}
 
@@ -427,7 +429,8 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                         betweenEnd,
                       );
                     }}
-                    style={{ width: 120 }}
+                    controls={false}
+                    style={{ width: 60 }}
                   />
                   <InputNumber
                     value={betweenEnd}
@@ -447,7 +450,8 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
                         newEnd,
                       );
                     }}
-                    style={{ width: 120 }}
+                    controls={false}
+                    style={{ width: 60 }}
                   />
                 </>
               )}
