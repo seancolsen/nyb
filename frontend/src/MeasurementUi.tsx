@@ -12,20 +12,20 @@ interface MeasurementUiProps {
 function MeasurementUi({ value, onChange }: MeasurementUiProps) {
   const getMeasurementType = (m: Measurement | undefined): string => {
     if (!m) return "";
-    if (typeof m === "string") {
-      return m.charAt(0).toUpperCase() + m.slice(1);
-    }
-    if ("popularity" in m) return "Popularity";
-    if ("denseRank" in m) return "DenseRank";
-    if ("count" in m) return "Count";
+    if (m.type === "popularity") return "Popularity";
+    if (m.type === "denseRank") return "DenseRank";
+    if (m.type === "count") return "Count";
+    if (m.type === "masculinity") return "Masculinity";
+    if (m.type === "femininity") return "Femininity";
+    if (m.type === "genderNeutrality") return "GenderNeutrality";
     return "";
   };
 
   const getGenderSelection = (m: Measurement | undefined): GenderSelection => {
-    if (!m || typeof m === "string") return "both";
-    if ("popularity" in m) return m.popularity;
-    if ("denseRank" in m) return m.denseRank;
-    if ("count" in m) return m.count;
+    if (!m) return "both";
+    if (m.type === "popularity") return m.genderSelection;
+    if (m.type === "denseRank") return m.genderSelection;
+    if (m.type === "count") return m.genderSelection;
     return "both";
   };
 
@@ -46,17 +46,26 @@ function MeasurementUi({ value, onChange }: MeasurementUiProps) {
 
     let measurement: Measurement;
     if (newMeasurementType === "Popularity") {
-      measurement = { popularity: getGenderSelection(value) };
+      measurement = {
+        type: "popularity",
+        genderSelection: getGenderSelection(value),
+      };
     } else if (newMeasurementType === "DenseRank") {
-      measurement = { denseRank: getGenderSelection(value) };
+      measurement = {
+        type: "denseRank",
+        genderSelection: getGenderSelection(value),
+      };
     } else if (newMeasurementType === "Count") {
-      measurement = { count: getGenderSelection(value) };
+      measurement = {
+        type: "count",
+        genderSelection: getGenderSelection(value),
+      };
     } else if (newMeasurementType === "Masculinity") {
-      measurement = "masculinity";
+      measurement = { type: "masculinity" };
     } else if (newMeasurementType === "Femininity") {
-      measurement = "femininity";
+      measurement = { type: "femininity" };
     } else {
-      measurement = "genderNeutrality";
+      measurement = { type: "genderNeutrality" };
     }
 
     onChange(measurement);
@@ -67,11 +76,11 @@ function MeasurementUi({ value, onChange }: MeasurementUiProps) {
 
     let measurement: Measurement;
     if (measurementType === "Popularity") {
-      measurement = { popularity: newGenderSelection };
+      measurement = { type: "popularity", genderSelection: newGenderSelection };
     } else if (measurementType === "DenseRank") {
-      measurement = { denseRank: newGenderSelection };
+      measurement = { type: "denseRank", genderSelection: newGenderSelection };
     } else if (measurementType === "Count") {
-      measurement = { count: newGenderSelection };
+      measurement = { type: "count", genderSelection: newGenderSelection };
     } else {
       // Should not happen, but handle gracefully
       return;

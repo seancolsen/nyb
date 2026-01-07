@@ -16,12 +16,12 @@ interface StatisticUiProps {
 function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
   const getMeasurementType = (m: Measurement | undefined): string => {
     if (!m) return "";
-    if (typeof m === "string") {
-      return m;
-    }
-    if ("popularity" in m) return "Popularity";
-    if ("denseRank" in m) return "DenseRank";
-    if ("count" in m) return "Count";
+    if (m.type === "popularity") return "Popularity";
+    if (m.type === "denseRank") return "DenseRank";
+    if (m.type === "count") return "Count";
+    if (m.type === "masculinity") return "masculinity";
+    if (m.type === "femininity") return "femininity";
+    if (m.type === "genderNeutrality") return "genderNeutrality";
     return "";
   };
 
@@ -31,78 +31,69 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
 
   const [selectionType, setSelectionType] = useState<string>(
     value?.selection
-      ? "oneYear" in value.selection
+      ? value.selection.type === "oneYear"
         ? "OneYear"
         : "ManyYears"
       : "",
   );
 
   const [oneYear, setOneYear] = useState<number>(
-    value?.selection && "oneYear" in value.selection
-      ? value.selection.oneYear
+    value?.selection && value.selection.type === "oneYear"
+      ? value.selection.year
       : 2000,
   );
 
   const [aggregateFunction, setAggregateFunction] = useState<AggregateFunction>(
-    value?.selection && "manyYears" in value.selection
-      ? value.selection.manyYears.aggregateFunction
+    value?.selection && value.selection.type === "manyYears"
+      ? value.selection.aggregateFunction
       : "ave",
   );
 
   const getRangeType = (r: Range | undefined): string => {
     if (!r) return "";
-    if (typeof r === "string") {
-      return r;
-    }
-    if ("generation" in r) return "Generation";
-    if ("previous" in r) return "Previous";
-    if ("between" in r) return "Between";
+    if (r.type === "generation") return "Generation";
+    if (r.type === "previous") return "Previous";
+    if (r.type === "between") return "Between";
+    if (r.type === "allLivingPeople") return "AllLivingPeople";
+    if (r.type === "allYears") return "AllYears";
     return "";
   };
 
   const [rangeType, setRangeType] = useState<string>(
-    value?.selection && "manyYears" in value.selection
-      ? getRangeType(value.selection.manyYears.range)
+    value?.selection && value.selection.type === "manyYears"
+      ? getRangeType(value.selection.range)
       : "",
   );
 
   const [generation, setGeneration] = useState<Generation>(
     value?.selection &&
-      "manyYears" in value.selection &&
-      value.selection.manyYears.range &&
-      typeof value.selection.manyYears.range === "object" &&
-      "generation" in value.selection.manyYears.range
-      ? value.selection.manyYears.range.generation
+      value.selection.type === "manyYears" &&
+      value.selection.range.type === "generation"
+      ? value.selection.range.generation
       : "millennial",
   );
 
   const [previous, setPrevious] = useState<number>(
     value?.selection &&
-      "manyYears" in value.selection &&
-      value.selection.manyYears.range &&
-      typeof value.selection.manyYears.range === "object" &&
-      "previous" in value.selection.manyYears.range
-      ? value.selection.manyYears.range.previous
+      value.selection.type === "manyYears" &&
+      value.selection.range.type === "previous"
+      ? value.selection.range.previous
       : 10,
   );
 
   const [betweenStart, setBetweenStart] = useState<number>(
     value?.selection &&
-      "manyYears" in value.selection &&
-      value.selection.manyYears.range &&
-      typeof value.selection.manyYears.range === "object" &&
-      "between" in value.selection.manyYears.range
-      ? value.selection.manyYears.range.between[0]
+      value.selection.type === "manyYears" &&
+      value.selection.range.type === "between"
+      ? value.selection.range.min
       : 2000,
   );
 
   const [betweenEnd, setBetweenEnd] = useState<number>(
     value?.selection &&
-      "manyYears" in value.selection &&
-      value.selection.manyYears.range &&
-      typeof value.selection.manyYears.range === "object" &&
-      "between" in value.selection.manyYears.range
-      ? value.selection.manyYears.range.between[1]
+      value.selection.type === "manyYears" &&
+      value.selection.range.type === "between"
+      ? value.selection.range.max
       : 2020,
   );
 
@@ -126,7 +117,7 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
 
     let selection: Selection;
     if (newSelectionType === "OneYear") {
-      selection = { oneYear: newOneYear };
+      selection = { type: "oneYear", year: newOneYear };
     } else {
       if (!newRangeType) {
         onChange(null);
@@ -135,22 +126,21 @@ function StatisticUi({ value, onChange: onChange }: StatisticUiProps) {
 
       let range: Range;
       if (newRangeType === "Generation") {
-        range = { generation: newGeneration };
+        range = { type: "generation", generation: newGeneration };
       } else if (newRangeType === "Previous") {
-        range = { previous: newPrevious };
+        range = { type: "previous", previous: newPrevious };
       } else if (newRangeType === "Between") {
-        range = { between: [newBetweenStart, newBetweenEnd] };
+        range = { type: "between", min: newBetweenStart, max: newBetweenEnd };
       } else if (newRangeType === "AllLivingPeople") {
-        range = "allLivingPeople";
+        range = { type: "allLivingPeople" };
       } else {
-        range = "allYears";
+        range = { type: "allYears" };
       }
 
       selection = {
-        manyYears: {
-          aggregateFunction: newAggregateFunction,
-          range: range,
-        },
+        type: "manyYears",
+        aggregateFunction: newAggregateFunction,
+        range: range,
       };
     }
 

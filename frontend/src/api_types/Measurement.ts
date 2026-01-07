@@ -2,9 +2,9 @@
 import type { GenderSelection } from "./GenderSelection";
 
 export type Measurement =
-  | { popularity: GenderSelection }
-  | { denseRank: GenderSelection }
-  | { count: GenderSelection }
-  | "masculinity"
-  | "femininity"
-  | "genderNeutrality";
+  | { type: "popularity"; genderSelection: GenderSelection }
+  | { type: "denseRank"; genderSelection: GenderSelection }
+  | { type: "count"; genderSelection: GenderSelection }
+  | { type: "masculinity" }
+  | { type: "femininity" }
+  | { type: "genderNeutrality" };

@@ -2,8 +2,8 @@
 import type { Generation } from "./Generation";
 
 export type Range =
-  | { generation: Generation }
-  | { previous: number }
-  | { between: [number, number] }
-  | "allLivingPeople"
-  | "allYears";
+  | { type: "generation"; generation: Generation }
+  | { type: "previous"; previous: number }
+  | { type: "between"; min: number; max: number }
+  | { type: "allLivingPeople" }
+  | { type: "allYears" };

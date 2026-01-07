@@ -54,10 +54,10 @@ function HomePage() {
       ...filters,
       {
         statistic: {
-          measurement: { popularity: "both" },
-          selection: { oneYear: 2000 },
+          measurement: { type: "popularity", genderSelection: "both" },
+          selection: { type: "oneYear", year: 2000 },
         },
-        comparison: { gt: 0 },
+        comparison: { type: "gt", value: 0 },
       },
     ]);
   };

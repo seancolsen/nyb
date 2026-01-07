@@ -98,12 +98,21 @@ pub struct Statistic {
 }
 
 #[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase")]
 #[ts(export)]
 pub enum Measurement {
-    Popularity(GenderSelection),
-    DenseRank(GenderSelection),
-    Count(GenderSelection),
+    #[serde(rename_all = "camelCase")]
+    Popularity {
+        gender_selection: GenderSelection,
+    },
+    #[serde(rename_all = "camelCase")]
+    DenseRank {
+        gender_selection: GenderSelection,
+    },
+    #[serde(rename_all = "camelCase")]
+    Count {
+        gender_selection: GenderSelection,
+    },
     Masculinity,
     Femininity,
     GenderNeutrality,
@@ -112,17 +121,17 @@ pub enum Measurement {
 impl Measurement {
     fn get_sql_expr(&self) -> &str {
         match self {
-            Measurement::Popularity(gender_selection) => match gender_selection {
+            Measurement::Popularity { gender_selection } => match gender_selection {
                 GenderSelection::F => "popularity_f",
                 GenderSelection::M => "popularity_m",
                 GenderSelection::Both => "popularity_both",
             },
-            Measurement::DenseRank(gender_selection) => match gender_selection {
+            Measurement::DenseRank { gender_selection } => match gender_selection {
                 GenderSelection::F => "dense_rank_f",
                 GenderSelection::M => "dense_rank_m",
                 GenderSelection::Both => "dense_rank_both",
             },
-            Measurement::Count(gender_selection) => match gender_selection {
+            Measurement::Count { gender_selection } => match gender_selection {
                 GenderSelection::F => "count_f",
                 GenderSelection::M => "count_m",
                 GenderSelection::Both => "count_both",
@@ -150,10 +159,11 @@ pub enum GenderSelection {
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase")]
 #[ts(export)]
 pub enum Selection {
-    OneYear(u16),
+    #[serde(rename_all = "camelCase")]
+    OneYear { year: u16 },
     #[serde(rename_all = "camelCase")]
     ManyYears {
         aggregate_function: AggregateFunction,
@@ -164,7 +174,10 @@ pub enum Selection {
 impl Selection {
     pub fn get_range(&self) -> Range {
         match self {
-            Selection::OneYear(year) => Range::Between(*year, *year),
+            Selection::OneYear { year } => Range::Between {
+                min: *year,
+                max: *year,
+            },
             Selection::ManyYears { range, .. } => *range,
         }
     }
@@ -193,12 +206,22 @@ fn render_year_range_query(min_year_param: String, max_year_param: String) -> St
 }
 
 #[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase")]
 #[ts(export)]
 pub enum Range {
-    Generation(Generation),
-    Previous(u8),
-    Between(u16, u16),
+    #[serde(rename_all = "camelCase")]
+    Generation {
+        generation: Generation,
+    },
+    #[serde(rename_all = "camelCase")]
+    Previous {
+        previous: u8,
+    },
+    #[serde(rename_all = "camelCase")]
+    Between {
+        min: u16,
+        max: u16,
+    },
     AllLivingPeople,
     AllYears,
 }
@@ -207,7 +230,7 @@ impl Range {
     /// If this range represents one year, return that year. Otherwise return None.
     pub fn get_single_year(&self) -> Option<u16> {
         match self {
-            Range::Between(min, max) if min == max => Some(*min),
+            Range::Between { min, max } if min == max => Some(*min),
             _ => None,
         }
     }
@@ -225,14 +248,14 @@ impl Range {
                 params.set(Box::new(MIN_YEAR)),
                 params.set(Box::new(MAX_YEAR)),
             ),
-            Range::Between(min, max) => {
+            Range::Between { min, max } => {
                 render_year_range_query(params.set(Box::new(*min)), params.set(Box::new(*max)))
             }
-            Range::Previous(previous) => render_year_range_query(
+            Range::Previous { previous } => render_year_range_query(
                 params.set(Box::new(MAX_YEAR - *previous as usize)),
                 params.set(Box::new(MAX_YEAR)),
             ),
-            Range::Generation(generation) => {
+            Range::Generation { generation } => {
                 let (min, max) = generation.get_min_max_years();
                 render_year_range_query(params.set(Box::new(min)), params.set(Box::new(max)))
             }
@@ -272,11 +295,13 @@ impl Generation {
 }
 
 #[derive(Deserialize, Serialize, TS, Hash)]
-#[serde(rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase")]
 #[ts(export)]
 pub enum Comparison {
-    Gt(F64Number),
-    Lt(F64Number),
+    #[serde(rename_all = "camelCase")]
+    Gt { value: F64Number },
+    #[serde(rename_all = "camelCase")]
+    Lt { value: F64Number },
 }
 
 #[derive(Clone, Deserialize, Serialize, TS)]
@@ -345,7 +370,7 @@ fn build_cte(
         query.push_str("\n  ");
         let e = format!("coalesce({}, 0.0)", statistic.measurement.get_sql_expr());
         match statistic.selection {
-            Selection::OneYear(_) => query.push_str(&e),
+            Selection::OneYear { .. } => query.push_str(&e),
             Selection::ManyYears {
                 aggregate_function, ..
             } => match aggregate_function {
@@ -367,8 +392,12 @@ fn build_cte(
         }
         for comparison in purpose.filtering {
             let expr = match comparison {
-                Comparison::Gt(v) => format!("{} > {}", column(), params.set(Box::new(v))),
-                Comparison::Lt(v) => format!("{} < {}", column(), params.set(Box::new(v))),
+                Comparison::Gt { value } => {
+                    format!("{} > {}", column(), params.set(Box::new(value)))
+                }
+                Comparison::Lt { value } => {
+                    format!("{} < {}", column(), params.set(Box::new(value)))
+                }
             };
             filtering_expressions.push(expr);
         }
@@ -403,8 +432,12 @@ pub async fn search_names(
     request: SearchNamesRequest,
 ) -> Result<SearchNamesResponse, String> {
     let sort = request.sort.unwrap_or(Statistic {
-        measurement: Measurement::Popularity(GenderSelection::Both),
-        selection: Selection::OneYear(MAX_YEAR as u16 - 15),
+        measurement: Measurement::Popularity {
+            gender_selection: GenderSelection::Both,
+        },
+        selection: Selection::OneYear {
+            year: MAX_YEAR as u16 - 15,
+        },
     });
 
     let range_map = {

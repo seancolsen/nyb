@@ -13,22 +13,26 @@ function FilterUi({
   onChange: onChange,
   onRemove: onRemove,
 }: FilterUiProps) {
-  const comparisonType = "gt" in value.comparison ? "gt" : "lt";
-  const comparisonValue =
-    "gt" in value.comparison ? value.comparison.gt : value.comparison.lt;
+  const comparisonType = value.comparison.type;
+  const comparisonValue = value.comparison.value;
 
   const handleComparisonTypeChange = (newType: "gt" | "lt") => {
     onChange({
       ...value,
       comparison:
-        newType === "gt" ? { gt: comparisonValue } : { lt: comparisonValue },
+        newType === "gt"
+          ? { type: "gt", value: comparisonValue }
+          : { type: "lt", value: comparisonValue },
     });
   };
 
   const handleComparisonValueChange = (newValue: number) => {
     onChange({
       ...value,
-      comparison: comparisonType === "gt" ? { gt: newValue } : { lt: newValue },
+      comparison:
+        comparisonType === "gt"
+          ? { type: "gt", value: newValue }
+          : { type: "lt", value: newValue },
     });
   };
 
