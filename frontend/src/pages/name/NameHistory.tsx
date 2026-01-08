@@ -1,5 +1,5 @@
-import type { NameHistoryData } from "./api_types";
-import NameHistoryChart from "./NameHistoryChart";
+import type { NameHistoryData } from "../../api_types";
+import NameHistoryChart from "../../components/charts/NameHistoryChart";
 
 interface NameHistoryProps {
   nameHistory: NameHistoryData;
