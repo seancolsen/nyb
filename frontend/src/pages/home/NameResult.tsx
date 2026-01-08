@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import type { NameData } from "../../api_types";
-import NameHistoryChartMini from "../../components/charts/NameHistoryChartMini";
+import type { NameData } from "@/api_types";
+import NameHistoryChartMini from "@/components/charts/NameHistoryChartMini";
 
 interface NameResultProps {
   name: NameData;

@@ -1,6 +1,6 @@
-import type { Statistic } from "../../api_types/Statistic";
-import type { Measurement } from "../../api_types/Measurement";
-import type { Selection } from "../../api_types/Selection";
+import type { Statistic } from "@/api_types/Statistic";
+import type { Measurement } from "@/api_types/Measurement";
+import type { Selection } from "@/api_types/Selection";
 import MeasurementUi from "./MeasurementUi";
 import SelectionUi from "./SelectionUi";
 

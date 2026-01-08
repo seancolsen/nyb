@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import { buildOptions } from "../../utils";
-import type { Measurement } from "../../api_types/Measurement";
+import { buildOptions } from "@/utils";
+import type { Measurement } from "@/api_types/Measurement";
 
 interface MeasurementTypeUiProps {
   value: Measurement["type"];

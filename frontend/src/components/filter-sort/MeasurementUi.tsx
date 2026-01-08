@@ -1,5 +1,5 @@
-import type { Measurement } from "../../api_types/Measurement";
-import type { GenderSelection } from "../../api_types/GenderSelection";
+import type { Measurement } from "@/api_types/Measurement";
+import type { GenderSelection } from "@/api_types/GenderSelection";
 import GenderSelectionUi from "./GenderSelectionUi";
 import MeasurementTypeUi from "./MeasurementTypeUi";
 

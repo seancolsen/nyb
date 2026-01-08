@@ -1,4 +1,4 @@
-import type { NameHistoryData } from "../../api_types";
+import type { NameHistoryData } from "@/api_types";
 
 interface NameHistoryChartProps {
   nameHistory: NameHistoryData;

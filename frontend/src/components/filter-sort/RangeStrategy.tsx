@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import type { Range } from "../../api_types/Range";
-import { buildOptions } from "../../utils";
+import type { Range } from "@/api_types/Range";
+import { buildOptions } from "@/utils";
 
 export type RangeStrategy = Range["type"] | "oneYear";
 

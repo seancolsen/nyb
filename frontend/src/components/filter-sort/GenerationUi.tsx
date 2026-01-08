@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import { buildOptions } from "../../utils";
-import type { Generation } from "../../api_types/Generation";
+import { buildOptions } from "@/utils";
+import type { Generation } from "@/api_types/Generation";
 
 interface Props {
   generation: Generation;

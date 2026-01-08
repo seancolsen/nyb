@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import type { SearchMethod } from "../../api_types/SearchMethod";
-import { buildOptions } from "../../utils";
+import type { SearchMethod } from "@/api_types/SearchMethod";
+import { buildOptions } from "@/utils";
 
 const options: Record<SearchMethod, string> = {
   contains: "Contains",

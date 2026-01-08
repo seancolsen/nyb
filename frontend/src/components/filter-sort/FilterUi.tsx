@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import StatisticUi from "./StatisticUi";
-import type { Filter } from "../../api_types/Filter";
+import type { Filter } from "@/api_types/Filter";
 import ComparisonUi from "./ComparisonUi";
 
 interface FilterUiProps {
