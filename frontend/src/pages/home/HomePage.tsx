@@ -9,6 +9,7 @@ import NameResult from "./NameResult";
 import FilterUi from "@/components/filter-sort/FilterUi";
 import StatisticUi from "@/components/filter-sort/StatisticUi";
 import SearchMethodUi from "@/components/filter-sort/SearchMethodUi";
+import Fieldset from "@/components/general-purpose/Fieldset";
 
 function getDefaultSort(): Statistic {
   return {
@@ -26,7 +27,7 @@ function getDefaultFilter(): Filter {
 
 function HomePage() {
   const [query, setQuery] = useState("");
-  const [method, setMethod] = useState<SearchMethod>("contains");
+  const [method, setMethod] = useState<SearchMethod>("startsWith");
   const [results, setResults] = useState<NameData[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filter[]>([]);
@@ -81,35 +82,37 @@ function HomePage() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <Input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ width: 200 }}
-        />
-        <SearchMethodUi searchMethod={method} onChange={setMethod} />
+        <Fieldset legend="Spelling">
+          Name
+          <SearchMethodUi searchMethod={method} onChange={setMethod} />
+          <Input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={{ width: 200 }}
+          />
+        </Fieldset>
+
+        <Fieldset legend="Statistics filters">
+          {filters.map((filter, index) => (
+            <FilterUi
+              key={index}
+              filter={filter}
+              onChange={(f: Filter) => updateFilter(index, f)}
+              onRemove={() => removeFilter(index)}
+            />
+          ))}
+          <Button onClick={addFilter}>Add Filter</Button>
+        </Fieldset>
+
+        <Fieldset legend="Sort by">
+          <StatisticUi statistic={sort} onChange={setSort} />
+        </Fieldset>
+
         <Button type="primary" htmlType="submit" disabled={loading}>
-          Search
+          Show names
         </Button>
       </form>
-
-      <div>
-        <h3>Filters</h3>
-        {filters.map((filter, index) => (
-          <FilterUi
-            key={index}
-            filter={filter}
-            onChange={(f: Filter) => updateFilter(index, f)}
-            onRemove={() => removeFilter(index)}
-          />
-        ))}
-        <Button onClick={addFilter}>Add Filter</Button>
-      </div>
-
-      <div>
-        <h3>Sort</h3>
-        <StatisticUi statistic={sort} onChange={setSort} />
-      </div>
 
       {results.map((name) => (
         <div key={name.name} className="p-1">
