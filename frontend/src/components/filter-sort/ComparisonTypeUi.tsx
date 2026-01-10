@@ -12,7 +12,7 @@ const options: Record<Comparison["type"], string> = {
   lt: "Less than",
 };
 
-function ComparisonTypeUi({ type, onChange }: ComparisonTypeUiProps) {
+export function ComparisonTypeUi({ type, onChange }: ComparisonTypeUiProps) {
   return (
     <Select
       value={type}
@@ -22,5 +22,3 @@ function ComparisonTypeUi({ type, onChange }: ComparisonTypeUiProps) {
     />
   );
 }
-
-export default ComparisonTypeUi;

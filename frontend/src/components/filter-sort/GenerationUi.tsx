@@ -18,7 +18,7 @@ const options: Record<Generation, string> = {
   alpha: "Alpha",
 };
 
-function GenderSelectionUi({ generation, onChange }: Props) {
+export function GenerationUi({ generation, onChange }: Props) {
   return (
     <Select
       value={generation}
@@ -28,5 +28,3 @@ function GenderSelectionUi({ generation, onChange }: Props) {
     />
   );
 }
-
-export default GenderSelectionUi;

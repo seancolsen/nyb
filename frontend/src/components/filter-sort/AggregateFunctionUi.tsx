@@ -14,7 +14,7 @@ const options: Record<AggregateFunction, string> = {
   trend: "Linear regression slope of",
 };
 
-function AggregateFunctionUi({ aggregateFunction, onChange }: Props) {
+export function AggregateFunctionUi({ aggregateFunction, onChange }: Props) {
   return (
     <Select
       value={aggregateFunction}
@@ -24,5 +24,3 @@ function AggregateFunctionUi({ aggregateFunction, onChange }: Props) {
     />
   );
 }
-
-export default AggregateFunctionUi;

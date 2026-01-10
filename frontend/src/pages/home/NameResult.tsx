@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import type { NameData } from "@/api_types";
-import NameHistoryChartMini from "@/components/charts/NameHistoryChartMini";
+import { NameHistoryChartMini } from "@/components/charts/NameHistoryChartMini";
 
 interface NameResultProps {
   name: NameData;
 }
 
-function NameResult({ name }: NameResultProps) {
+export function NameResult({ name }: NameResultProps) {
   return (
     <Link
       to={`/${name.name}`}
@@ -17,5 +17,3 @@ function NameResult({ name }: NameResultProps) {
     </Link>
   );
 }
-
-export default NameResult;

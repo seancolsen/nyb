@@ -1,5 +1,5 @@
 import { InputNumber } from "antd";
-import ComparisonTypeUi from "./ComparisonTypeUi";
+import { ComparisonTypeUi } from "./ComparisonTypeUi";
 import type { Comparison } from "@/api_types/Comparison";
 
 interface Props {
@@ -14,7 +14,7 @@ function buildComparison(
   return { type, value: value ?? 0 };
 }
 
-export default function ComparisonUi({ comparison, onChange }: Props) {
+export function ComparisonUi({ comparison, onChange }: Props) {
   return (
     <>
       <ComparisonTypeUi

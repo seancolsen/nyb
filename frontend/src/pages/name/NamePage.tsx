@@ -2,13 +2,13 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/api";
 import type { NameHistoryData } from "@/api_types";
-import NameHistory from "./NameHistory";
-import AppLayout from "@/layouts/AppLayout";
+import { NameHistory } from "./NameHistory";
+import { AppLayout } from "@/layouts/AppLayout";
 
 // Shared across all component instances to prevent duplicate requests from StrictMode
 const pendingRequests = new Set<string>();
 
-function NamePage() {
+export function NamePage() {
   const { name } = useParams<{ name: string }>();
   const [nameHistory, setNameHistory] = useState<NameHistoryData | null>(null);
   const requestIdRef = useRef(0);
@@ -72,5 +72,3 @@ function NamePage() {
     </AppLayout>
   );
 }
-
-export default NamePage;

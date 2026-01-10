@@ -5,12 +5,12 @@ import type { SearchMethod } from "@/api_types/SearchMethod";
 import type { NameData } from "@/api_types";
 import type { Filter } from "@/api_types/Filter";
 import type { Statistic } from "@/api_types/Statistic";
-import NameResult from "./NameResult";
-import FilterUi from "@/components/filter-sort/FilterUi";
-import StatisticUi from "@/components/filter-sort/StatisticUi";
-import SearchMethodUi from "@/components/filter-sort/SearchMethodUi";
-import Fieldset from "@/components/general-purpose/Fieldset";
-import AppLayout from "@/layouts/AppLayout";
+import { NameResult } from "./NameResult";
+import { FilterUi } from "@/components/filter-sort/FilterUi";
+import { StatisticUi } from "@/components/filter-sort/StatisticUi";
+import { SearchMethodUi } from "@/components/filter-sort/SearchMethodUi";
+import { Fieldset } from "@/components/general-purpose/Fieldset";
+import { AppLayout } from "@/layouts/AppLayout";
 
 function getDefaultSort(): Statistic {
   return {
@@ -26,7 +26,7 @@ function getDefaultFilter(): Filter {
   };
 }
 
-function HomePage() {
+export function HomePage() {
   const [query, setQuery] = useState("");
   const [method, setMethod] = useState<SearchMethod>("startsWith");
   const [results, setResults] = useState<NameData[]>([]);
@@ -123,5 +123,3 @@ function HomePage() {
     </AppLayout>
   );
 }
-
-export default HomePage;

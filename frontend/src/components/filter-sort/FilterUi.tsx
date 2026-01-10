@@ -1,7 +1,7 @@
 import { Button } from "antd";
-import StatisticUi from "./StatisticUi";
+import { StatisticUi } from "./StatisticUi";
 import type { Filter } from "@/api_types/Filter";
-import ComparisonUi from "./ComparisonUi";
+import { ComparisonUi } from "./ComparisonUi";
 
 interface FilterUiProps {
   filter: Filter;
@@ -9,7 +9,7 @@ interface FilterUiProps {
   onRemove: () => void;
 }
 
-function FilterUi({ filter, onChange, onRemove }: FilterUiProps) {
+export function FilterUi({ filter, onChange, onRemove }: FilterUiProps) {
   const { statistic, comparison } = filter;
   return (
     <div>
@@ -25,5 +25,3 @@ function FilterUi({ filter, onChange, onRemove }: FilterUiProps) {
     </div>
   );
 }
-
-export default FilterUi;

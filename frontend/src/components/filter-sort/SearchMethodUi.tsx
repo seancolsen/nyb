@@ -13,7 +13,7 @@ interface Props {
   onChange: (m: SearchMethod) => void;
 }
 
-export default function SearchMethodUi({ searchMethod, onChange }: Props) {
+export function SearchMethodUi({ searchMethod, onChange }: Props) {
   return (
     <Select
       value={searchMethod}

@@ -13,7 +13,7 @@ const options: Record<GenderSelection, string> = {
   both: "for everyone",
 };
 
-function GenderSelectionUi({
+export function GenderSelectionUi({
   genderSelection,
   onChange,
 }: GenderSelectionUiProps) {
@@ -26,5 +26,3 @@ function GenderSelectionUi({
     />
   );
 }
-
-export default GenderSelectionUi;

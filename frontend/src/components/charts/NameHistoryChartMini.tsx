@@ -2,7 +2,7 @@ interface NameHistoryChartMiniProps {
   shape: string;
 }
 
-function NameHistoryChartMini({ shape }: NameHistoryChartMiniProps) {
+export function NameHistoryChartMini({ shape }: NameHistoryChartMiniProps) {
   const decoded = Uint8Array.from(atob(shape), (c) => c.charCodeAt(0));
 
   const width = 100;
@@ -53,5 +53,3 @@ function NameHistoryChartMini({ shape }: NameHistoryChartMiniProps) {
     </svg>
   );
 }
-
-export default NameHistoryChartMini;

@@ -1,4 +1,4 @@
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-gray-800 text-white p-4">

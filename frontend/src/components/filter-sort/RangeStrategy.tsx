@@ -18,7 +18,7 @@ const options: Record<RangeStrategy, string> = {
   oneYear: "in year",
 };
 
-function RangeStrategyUi({ rangeStrategy, onChange }: Props) {
+export function RangeStrategyUi({ rangeStrategy, onChange }: Props) {
   return (
     <Select
       value={rangeStrategy}
@@ -28,5 +28,3 @@ function RangeStrategyUi({ rangeStrategy, onChange }: Props) {
     />
   );
 }
-
-export default RangeStrategyUi;

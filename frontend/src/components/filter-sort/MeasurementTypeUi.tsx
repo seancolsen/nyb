@@ -16,7 +16,7 @@ const options: Record<Measurement["type"], string> = {
   genderNeutrality: "Gender Neutrality",
 };
 
-function MeasurementTypeUi({ value, onChange }: MeasurementTypeUiProps) {
+export function MeasurementTypeUi({ value, onChange }: MeasurementTypeUiProps) {
   return (
     <Select
       value={value}
@@ -26,5 +26,3 @@ function MeasurementTypeUi({ value, onChange }: MeasurementTypeUiProps) {
     />
   );
 }
-
-export default MeasurementTypeUi;

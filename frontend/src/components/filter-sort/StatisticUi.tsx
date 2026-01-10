@@ -1,8 +1,8 @@
 import type { Statistic } from "@/api_types/Statistic";
 import type { Measurement } from "@/api_types/Measurement";
 import type { Selection } from "@/api_types/Selection";
-import MeasurementUi from "./MeasurementUi";
-import SelectionUi from "./SelectionUi";
+import { MeasurementUi } from "./MeasurementUi";
+import { SelectionUi } from "./SelectionUi";
 
 interface Props {
   statistic: Statistic;
@@ -16,7 +16,7 @@ function buildStatistic(
   return { measurement, selection };
 }
 
-function StatisticUi({ statistic, onChange }: Props) {
+export function StatisticUi({ statistic, onChange }: Props) {
   return (
     <SelectionUi
       selection={statistic.selection}
@@ -34,5 +34,3 @@ function StatisticUi({ statistic, onChange }: Props) {
     />
   );
 }
-
-export default StatisticUi;

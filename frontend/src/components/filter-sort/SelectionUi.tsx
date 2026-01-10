@@ -1,11 +1,11 @@
 import { InputNumber } from "antd";
-import AggregateFunctionUi from "./AggregateFunctionUi";
+import { AggregateFunctionUi } from "./AggregateFunctionUi";
 import type { Selection } from "@/api_types/Selection";
 import type { Range } from "@/api_types/Range";
 import type { RangeStrategy } from "./RangeStrategy";
-import RangeStrategyUi from "./RangeStrategy";
+import { RangeStrategyUi } from "./RangeStrategy";
 import { exhaustive, match } from "@/utils";
-import GenerationUi from "./GenerationUi";
+import { GenerationUi } from "./GenerationUi";
 import type { AggregateFunction } from "@/api_types/AggregateFunction";
 import { MAX_YEAR } from "@/constants";
 import type { Generation } from "@/api_types/Generation";
@@ -90,11 +90,7 @@ function buildBetweenSelection({
   };
 }
 
-export default function SelectionUi({
-  selection,
-  onChange,
-  measurementUi,
-}: Props) {
+export function SelectionUi({ selection, onChange, measurementUi }: Props) {
   const rangeStrategy: RangeStrategy = match(selection, "type", {
     oneYear: () => "oneYear" as const,
     manyYears: ({ range }) => range.type,

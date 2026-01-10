@@ -1,4 +1,4 @@
-export default function Fieldset({
+export function Fieldset({
   legend,
   children,
 }: {

@@ -1,7 +1,7 @@
 import type { Measurement } from "@/api_types/Measurement";
 import type { GenderSelection } from "@/api_types/GenderSelection";
-import GenderSelectionUi from "./GenderSelectionUi";
-import MeasurementTypeUi from "./MeasurementTypeUi";
+import { GenderSelectionUi } from "./GenderSelectionUi";
+import { MeasurementTypeUi } from "./MeasurementTypeUi";
 
 interface MeasurementUiProps {
   measurement: Measurement;
@@ -38,7 +38,7 @@ function buildMeasurement(
     : { type };
 }
 
-function MeasurementUi({ measurement, onChange }: MeasurementUiProps) {
+export function MeasurementUi({ measurement, onChange }: MeasurementUiProps) {
   const genderSelection = getGenderSelection(measurement);
 
   return (
@@ -59,5 +59,3 @@ function MeasurementUi({ measurement, onChange }: MeasurementUiProps) {
     </>
   );
 }
-
-export default MeasurementUi;

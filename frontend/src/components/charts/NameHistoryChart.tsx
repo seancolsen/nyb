@@ -4,7 +4,7 @@ interface NameHistoryChartProps {
   nameHistory: NameHistoryData;
 }
 
-function NameHistoryChart({ nameHistory }: NameHistoryChartProps) {
+export function NameHistoryChart({ nameHistory }: NameHistoryChartProps) {
   const width = 800;
   const height = 400;
   const padding = { top: 20, right: 40, bottom: 40, left: 40 };
@@ -83,5 +83,3 @@ function NameHistoryChart({ nameHistory }: NameHistoryChartProps) {
     </svg>
   );
 }
-
-export default NameHistoryChart;
