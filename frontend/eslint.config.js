@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
+import importX from "eslint-plugin-import-x";
 
 export default defineConfig([
   globalIgnores(["dist"]),
@@ -19,6 +20,9 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    plugins: {
+      "import-x": importX,
+    },
     rules: {
       "@typescript-eslint/naming-convention": [
         "error",
@@ -29,6 +33,15 @@ export default defineConfig([
       ],
       "@typescript-eslint/no-unused-vars": "warn",
       "no-unused-vars": "warn",
+    },
+  },
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    plugins: {
+      "import-x": importX,
+    },
+    rules: {
+      "import-x/no-default-export": "error",
     },
   },
 ]);
