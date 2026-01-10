@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { api } from "@/api";
 import type { NameHistoryData } from "@/api_types";
 import NameHistory from "./NameHistory";
+import AppLayout from "@/layouts/AppLayout";
 
 // Shared across all component instances to prevent duplicate requests from StrictMode
 const pendingRequests = new Set<string>();
@@ -62,13 +63,13 @@ function NamePage() {
   }
 
   return (
-    <div>
+    <AppLayout>
       {nameHistory !== null ? (
         <NameHistory nameHistory={nameHistory} />
       ) : (
         "Loading..."
       )}
-    </div>
+    </AppLayout>
   );
 }
 

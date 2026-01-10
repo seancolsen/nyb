@@ -10,6 +10,7 @@ import FilterUi from "@/components/filter-sort/FilterUi";
 import StatisticUi from "@/components/filter-sort/StatisticUi";
 import SearchMethodUi from "@/components/filter-sort/SearchMethodUi";
 import Fieldset from "@/components/general-purpose/Fieldset";
+import AppLayout from "@/layouts/AppLayout";
 
 function getDefaultSort(): Statistic {
   return {
@@ -80,7 +81,7 @@ function HomePage() {
   };
 
   return (
-    <div>
+    <AppLayout>
       <form onSubmit={handleSubmit}>
         <Fieldset legend="Spelling">
           Name
@@ -119,7 +120,7 @@ function HomePage() {
           <NameResult name={name} />
         </div>
       ))}
-    </div>
+    </AppLayout>
   );
 }
 
