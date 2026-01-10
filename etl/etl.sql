@@ -17,8 +17,7 @@ FROM read_csv(
   columns={year: 'INTEGER', name: 'TEXT', gender: 'TEXT', count: 'INTEGER'}
 );
 
-update import
-set name = 'Unknown'
+delete from import
 where name in (
   '',
   'Newborn',
@@ -29,7 +28,9 @@ where name in (
   'Boy',
   'Girl',
   'Babyboy',
-  'Babygirl'
+  'Babygirl',
+  'Christop',
+  'Unknown'
 );
 
 
