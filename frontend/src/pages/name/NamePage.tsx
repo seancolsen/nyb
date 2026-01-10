@@ -1,9 +1,11 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
+import { useParams } from "react-router-dom";
+
 import { api } from "@/api";
 import type { NameHistoryData } from "@/api_types";
-import { NameHistory } from "./NameHistory";
 import { AppLayout } from "@/layouts/AppLayout";
+
+import { NameHistory } from "./NameHistory";
 
 // Shared across all component instances to prevent duplicate requests from StrictMode
 const pendingRequests = new Set<string>();

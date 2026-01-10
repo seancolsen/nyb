@@ -1,6 +1,7 @@
 import { Select } from "antd";
-import { buildOptions } from "@/utils";
+
 import type { Comparison } from "@/api_types/Comparison";
+import { buildOptions } from "@/utils";
 
 interface ComparisonTypeUiProps {
   type: Comparison["type"];

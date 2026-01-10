@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import { NamePage } from "./pages/name/NamePage";
+
 import { HomePage } from "./pages/home/HomePage";
+import { NamePage } from "./pages/name/NamePage";
 
 export function App() {
   return (

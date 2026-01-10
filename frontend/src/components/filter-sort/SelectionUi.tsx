@@ -1,14 +1,17 @@
 import { InputNumber } from "antd";
-import { AggregateFunctionUi } from "./AggregateFunctionUi";
-import type { Selection } from "@/api_types/Selection";
-import type { Range } from "@/api_types/Range";
-import type { RangeStrategy } from "./RangeStrategy";
-import { RangeStrategyUi } from "./RangeStrategy";
-import { exhaustive, match } from "@/utils";
-import { GenerationUi } from "./GenerationUi";
+
 import type { AggregateFunction } from "@/api_types/AggregateFunction";
-import { MAX_YEAR } from "@/constants";
 import type { Generation } from "@/api_types/Generation";
+import type { Range } from "@/api_types/Range";
+import type { Selection } from "@/api_types/Selection";
+import { MAX_YEAR } from "@/constants";
+import { exhaustive, match } from "@/utils";
+
+import { AggregateFunctionUi } from "./AggregateFunctionUi";
+import { GenerationUi } from "./GenerationUi";
+import { RangeStrategyUi } from "./RangeStrategy";
+
+import type { RangeStrategy } from "./RangeStrategy";
 
 interface Props {
   selection: Selection;

@@ -1,6 +1,7 @@
 import { Select } from "antd";
-import { buildOptions } from "@/utils";
+
 import type { AggregateFunction } from "@/api_types/AggregateFunction";
+import { buildOptions } from "@/utils";
 
 interface Props {
   aggregateFunction: AggregateFunction;

@@ -1,6 +1,8 @@
 import { InputNumber } from "antd";
-import { ComparisonTypeUi } from "./ComparisonTypeUi";
+
 import type { Comparison } from "@/api_types/Comparison";
+
+import { ComparisonTypeUi } from "./ComparisonTypeUi";
 
 interface Props {
   comparison: Comparison;
