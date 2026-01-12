@@ -19,19 +19,19 @@ function buildStatistic(
 
 export function StatisticUi({ statistic, onChange }: Props) {
   return (
-    <SelectionUi
-      selection={statistic.selection}
-      onChange={(selection) =>
-        onChange(buildStatistic(statistic.measurement, selection))
-      }
-      measurementUi={
-        <MeasurementUi
-          measurement={statistic.measurement}
-          onChange={(measurement) =>
-            onChange(buildStatistic(measurement, statistic.selection))
-          }
-        />
-      }
-    />
+    <>
+      <MeasurementUi
+        measurement={statistic.measurement}
+        onChange={(measurement) =>
+          onChange(buildStatistic(measurement, statistic.selection))
+        }
+      />
+      <SelectionUi
+        selection={statistic.selection}
+        onChange={(selection) =>
+          onChange(buildStatistic(statistic.measurement, selection))
+        }
+      />
+    </>
   );
 }

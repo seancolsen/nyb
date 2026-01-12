@@ -9,10 +9,10 @@ interface Props {
 }
 
 const options: Record<AggregateFunction, string> = {
-  ave: "Average",
-  min: "Lowest",
-  max: "Highest",
-  trend: "Linear regression slope of",
+  ave: "averaged",
+  min: "at its lowest",
+  max: "at its highest",
+  trend: "linear trend slope",
 };
 
 export function AggregateFunctionUi({ aggregateFunction, onChange }: Props) {

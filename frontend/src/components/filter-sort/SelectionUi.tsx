@@ -16,7 +16,6 @@ import type { RangeStrategy } from "./RangeStrategy";
 interface Props {
   selection: Selection;
   onChange: (selection: Selection) => void;
-  measurementUi: React.ReactNode;
 }
 
 const defaultRanges = {
@@ -93,7 +92,7 @@ function buildBetweenSelection({
   };
 }
 
-export function SelectionUi({ selection, onChange, measurementUi }: Props) {
+export function SelectionUi({ selection, onChange }: Props) {
   const rangeStrategy: RangeStrategy = match(selection, "type", {
     oneYear: () => "oneYear" as const,
     manyYears: ({ range }) => range.type,
@@ -120,7 +119,6 @@ export function SelectionUi({ selection, onChange, measurementUi }: Props) {
   if (selection.type === "oneYear") {
     return (
       <>
-        {measurementUi}
         {rangeStrategyUi}
         <InputNumber
           value={selection.year}
@@ -144,7 +142,6 @@ export function SelectionUi({ selection, onChange, measurementUi }: Props) {
             onChange(buildSelection({ rangeStrategy, aggregateFunction: a }))
           }
         />
-        {measurementUi}
         {rangeStrategyUi}
         {range.type === "generation" && (
           <GenerationUi

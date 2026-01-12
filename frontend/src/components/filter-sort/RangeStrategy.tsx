@@ -10,11 +10,10 @@ interface Props {
   onChange: (rangeStrategy: RangeStrategy) => void;
 }
 
-const options: Record<RangeStrategy, string> = {
-  generation: "in generation",
-  previous: "over the previous",
+const options: Record<Exclude<RangeStrategy, "allLivingPeople">, string> = {
+  generation: "within generation",
+  previous: "over the past",
   between: "between years",
-  allLivingPeople: "among all living people",
   allYears: "since 1880",
   oneYear: "in year",
 };
