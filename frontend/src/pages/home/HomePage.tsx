@@ -84,6 +84,7 @@ export function HomePage() {
 
   return (
     <AppLayout>
+      <h2>Search Names</h2>
       <form onSubmit={handleSubmit}>
         <Fieldset legend="Spelling">
           Name
