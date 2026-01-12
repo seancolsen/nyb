@@ -7,11 +7,12 @@ import type { Selection } from "@/api_types/Selection";
 import { MAX_YEAR } from "@/constants";
 import { exhaustive, match } from "@/utils";
 
-import { AggregateFunctionUi } from "./AggregateFunctionUi";
+import {
+  AggregateStrategyUi,
+  type AggregateStrategy,
+} from "./AggregateStrategyUi";
 import { GenerationUi } from "./GenerationUi";
-import { RangeStrategyUi } from "./RangeStrategy";
-
-import type { RangeStrategy } from "./RangeStrategy";
+import { RangeTypeUi } from "./RangeTypeUi";
 
 interface Props {
   selection: Selection;
@@ -27,20 +28,20 @@ const defaultRanges = {
 } as const satisfies Record<Range["type"], Range>;
 
 function buildSelection({
-  rangeStrategy,
-  aggregateFunction,
+  rangeType,
+  aggregateStrategy,
 }: {
-  rangeStrategy: RangeStrategy;
-  aggregateFunction?: AggregateFunction;
+  rangeType: Range["type"];
+  aggregateStrategy: AggregateStrategy;
 }): Selection {
-  if (rangeStrategy === "oneYear") {
+  if (aggregateStrategy === "inYear") {
     return { type: "oneYear", year: MAX_YEAR - 20 };
   }
 
   return {
     type: "manyYears",
-    aggregateFunction: aggregateFunction ?? "ave",
-    range: defaultRanges[rangeStrategy],
+    aggregateFunction: aggregateStrategy,
+    range: defaultRanges[rangeType],
   };
 }
 
@@ -93,33 +94,33 @@ function buildBetweenSelection({
 }
 
 export function SelectionUi({ selection, onChange }: Props) {
-  const rangeStrategy: RangeStrategy = match(selection, "type", {
-    oneYear: () => "oneYear" as const,
-    manyYears: ({ range }) => range.type,
+  const aggregateStrategy: AggregateStrategy = match(selection, "type", {
+    oneYear: () => "inYear" as const,
+    manyYears: ({ aggregateFunction }) => aggregateFunction,
   });
 
-  function handleNewRangeStrategy(newRangeStrategy: RangeStrategy) {
-    const aggregateFunction =
-      selection.type === "manyYears" ? selection.aggregateFunction : undefined;
+  function handleNewAggregateStrategy(newAggregateStrategy: AggregateStrategy) {
+    const rangeType: Range["type"] =
+      selection.type === "manyYears" ? selection.range.type : "allYears";
     return onChange(
       buildSelection({
-        rangeStrategy: newRangeStrategy,
-        aggregateFunction,
+        rangeType,
+        aggregateStrategy: newAggregateStrategy,
       }),
     );
   }
 
-  const rangeStrategyUi = (
-    <RangeStrategyUi
-      rangeStrategy={rangeStrategy}
-      onChange={handleNewRangeStrategy}
+  const aggregateStrategyUi = (
+    <AggregateStrategyUi
+      aggregateStrategy={aggregateStrategy}
+      onChange={handleNewAggregateStrategy}
     />
   );
 
   if (selection.type === "oneYear") {
     return (
       <>
-        {rangeStrategyUi}
+        {aggregateStrategyUi}
         <InputNumber
           value={selection.year}
           onChange={(year) =>
@@ -136,13 +137,15 @@ export function SelectionUi({ selection, onChange }: Props) {
     const { aggregateFunction, range } = selection;
     return (
       <>
-        <AggregateFunctionUi
-          aggregateFunction={aggregateFunction}
-          onChange={(a: AggregateFunction) =>
-            onChange(buildSelection({ rangeStrategy, aggregateFunction: a }))
+        {aggregateStrategyUi}
+
+        <RangeTypeUi
+          rangeType={range.type}
+          onChange={(r) =>
+            onChange(buildSelection({ rangeType: r, aggregateStrategy }))
           }
         />
-        {rangeStrategyUi}
+
         {range.type === "generation" && (
           <GenerationUi
             generation={range.generation}
