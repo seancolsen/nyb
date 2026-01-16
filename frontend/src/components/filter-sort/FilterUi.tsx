@@ -1,6 +1,5 @@
-import { Button } from "antd";
-
 import type { Filter } from "@/api_types/Filter";
+import { Button } from "@/components/general-purpose/Button";
 
 import { ComparisonUi } from "./ComparisonUi";
 import { StatisticUi } from "./StatisticUi";

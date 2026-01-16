@@ -1,4 +1,3 @@
-import { Input, Button } from "antd";
 import { useState } from "react";
 
 import { api } from "@/api";
@@ -9,7 +8,9 @@ import type { Statistic } from "@/api_types/Statistic";
 import { FilterUi } from "@/components/filter-sort/FilterUi";
 import { SearchMethodUi } from "@/components/filter-sort/SearchMethodUi";
 import { StatisticUi } from "@/components/filter-sort/StatisticUi";
+import { Button } from "@/components/general-purpose/Button";
 import { Fieldset } from "@/components/general-purpose/Fieldset";
+import { TextInput } from "@/components/general-purpose/TextInput";
 import { AppLayout } from "@/layouts/AppLayout";
 
 import { NameResult } from "./NameResult";
@@ -89,12 +90,7 @@ export function HomePage() {
         <Fieldset legend="Spelling">
           Name
           <SearchMethodUi searchMethod={method} onChange={setMethod} />
-          <Input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            style={{ width: 200 }}
-          />
+          <TextInput value={query} onChange={setQuery} />
         </Fieldset>
 
         <Fieldset legend="Statistics filters">
@@ -113,7 +109,7 @@ export function HomePage() {
           <StatisticUi statistic={sort} onChange={setSort} />
         </Fieldset>
 
-        <Button type="primary" htmlType="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           Show names
         </Button>
       </form>

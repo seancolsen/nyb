@@ -1,7 +1,5 @@
-import { Select } from "antd";
-
 import type { AggregateFunction } from "@/api_types/AggregateFunction";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
 
 export type AggregateStrategy = AggregateFunction | "inYear";
 
@@ -20,11 +18,10 @@ const options: Record<AggregateStrategy, string> = {
 
 export function AggregateStrategyUi({ aggregateStrategy, onChange }: Props) {
   return (
-    <Select
+    <InlineSelect
       value={aggregateStrategy}
       onChange={onChange}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
+      options={options}
     />
   );
 }

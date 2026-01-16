@@ -1,14 +1,14 @@
-import { Select } from "antd";
-
 import type { Range } from "@/api_types/Range";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+
+type RangeType = Exclude<Range["type"], "allLivingPeople">;
 
 interface Props {
-  rangeType: Range["type"];
-  onChange: (rangeType: Range["type"]) => void;
+  rangeType: RangeType;
+  onChange: (rangeType: RangeType) => void;
 }
 
-const options: Record<Exclude<Range["type"], "allLivingPeople">, string> = {
+const options: Record<RangeType, string> = {
   generation: "within generation",
   previous: "over the past",
   between: "between years",
@@ -17,11 +17,6 @@ const options: Record<Exclude<Range["type"], "allLivingPeople">, string> = {
 
 export function RangeTypeUi({ rangeType, onChange }: Props) {
   return (
-    <Select
-      value={rangeType}
-      onChange={onChange}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
-    />
+    <InlineSelect value={rangeType} onChange={onChange} options={options} />
   );
 }

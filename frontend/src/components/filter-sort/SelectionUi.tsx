@@ -1,9 +1,8 @@
-import { InputNumber } from "antd";
-
 import type { AggregateFunction } from "@/api_types/AggregateFunction";
 import type { Generation } from "@/api_types/Generation";
 import type { Range } from "@/api_types/Range";
 import type { Selection } from "@/api_types/Selection";
+import { NumberInput } from "@/components/general-purpose/NumberInput";
 import { MAX_YEAR } from "@/constants";
 import { exhaustive, match } from "@/utils";
 
@@ -99,9 +98,13 @@ export function SelectionUi({ selection, onChange }: Props) {
     manyYears: ({ aggregateFunction }) => aggregateFunction,
   });
 
+  const rangeTypeForUi: Exclude<Range["type"], "allLivingPeople"> =
+    selection.type === "manyYears" && selection.range.type !== "allLivingPeople"
+      ? selection.range.type
+      : "allYears";
+
   function handleNewAggregateStrategy(newAggregateStrategy: AggregateStrategy) {
-    const rangeType: Range["type"] =
-      selection.type === "manyYears" ? selection.range.type : "allYears";
+    const rangeType = rangeTypeForUi;
     return onChange(
       buildSelection({
         rangeType,
@@ -121,13 +124,11 @@ export function SelectionUi({ selection, onChange }: Props) {
     return (
       <>
         {aggregateStrategyUi}
-        <InputNumber
+        <NumberInput
           value={selection.year}
           onChange={(year) =>
             year && onChange(buildSingleYearSelection({ year }))
           }
-          controls={false}
-          style={{ width: 60 }}
         />
       </>
     );
@@ -140,7 +141,7 @@ export function SelectionUi({ selection, onChange }: Props) {
         {aggregateStrategyUi}
 
         <RangeTypeUi
-          rangeType={range.type}
+          rangeType={rangeTypeForUi}
           onChange={(r) =>
             onChange(buildSelection({ rangeType: r, aggregateStrategy }))
           }
@@ -159,9 +160,8 @@ export function SelectionUi({ selection, onChange }: Props) {
 
         {range.type === "previous" && (
           <>
-            <InputNumber
+            <NumberInput
               value={range.previous}
-              controls={false}
               onChange={(previous) =>
                 previous &&
                 onChange(
@@ -175,9 +175,8 @@ export function SelectionUi({ selection, onChange }: Props) {
 
         {range.type === "between" && (
           <>
-            <InputNumber
+            <NumberInput
               value={range.min}
-              controls={false}
               onChange={(min) =>
                 min &&
                 onChange(
@@ -190,9 +189,8 @@ export function SelectionUi({ selection, onChange }: Props) {
               }
             />
             <span>and</span>
-            <InputNumber
+            <NumberInput
               value={range.max}
-              controls={false}
               onChange={(max) =>
                 max &&
                 onChange(

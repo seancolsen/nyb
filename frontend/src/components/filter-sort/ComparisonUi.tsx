@@ -1,6 +1,5 @@
-import { InputNumber } from "antd";
-
 import type { Comparison } from "@/api_types/Comparison";
+import { NumberInput } from "@/components/general-purpose/NumberInput";
 
 import { ComparisonTypeUi } from "./ComparisonTypeUi";
 
@@ -23,11 +22,9 @@ export function ComparisonUi({ comparison, onChange }: Props) {
         type={comparison.type}
         onChange={(type) => onChange(buildComparison(type, comparison.value))}
       />
-      <InputNumber
+      <NumberInput
         value={comparison.value}
         onChange={(value) => onChange(buildComparison(comparison.type, value))}
-        style={{ width: 60 }}
-        controls={false}
       />
     </>
   );

@@ -1,7 +1,5 @@
-import { Select } from "antd";
-
 import type { SearchMethod } from "@/api_types/SearchMethod";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
 
 const options: Record<SearchMethod, string> = {
   contains: "Contains",
@@ -16,11 +14,6 @@ interface Props {
 
 export function SearchMethodUi({ searchMethod, onChange }: Props) {
   return (
-    <Select
-      value={searchMethod}
-      onChange={(value) => onChange(value as SearchMethod)}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
-    />
+    <InlineSelect value={searchMethod} onChange={onChange} options={options} />
   );
 }

@@ -1,7 +1,5 @@
-import { Select } from "antd";
-
 import type { GenderSelection } from "@/api_types/GenderSelection";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
 
 interface GenderSelectionUiProps {
   genderSelection: GenderSelection;
@@ -19,11 +17,10 @@ export function GenderSelectionUi({
   onChange,
 }: GenderSelectionUiProps) {
   return (
-    <Select
+    <InlineSelect
+      options={options}
       value={genderSelection}
       onChange={onChange}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
     />
   );
 }

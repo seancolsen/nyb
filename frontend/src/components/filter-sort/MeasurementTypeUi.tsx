@@ -1,7 +1,5 @@
-import { Select } from "antd";
-
 import type { Measurement } from "@/api_types/Measurement";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
 
 interface MeasurementTypeUiProps {
   value: Measurement["type"];
@@ -19,11 +17,6 @@ const options: Record<Measurement["type"], string> = {
 
 export function MeasurementTypeUi({ value, onChange }: MeasurementTypeUiProps) {
   return (
-    <Select
-      value={value}
-      onChange={onChange}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
-    />
+    <InlineSelect value={value} onChange={onChange} options={options} />
   );
 }

@@ -1,7 +1,5 @@
-import { Select } from "antd";
-
 import type { Generation } from "@/api_types/Generation";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
 
 interface Props {
   generation: Generation;
@@ -21,11 +19,6 @@ const options: Record<Generation, string> = {
 
 export function GenerationUi({ generation, onChange }: Props) {
   return (
-    <Select
-      value={generation}
-      onChange={onChange}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
-    />
+    <InlineSelect value={generation} onChange={onChange} options={options} />
   );
 }

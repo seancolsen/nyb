@@ -1,7 +1,5 @@
-import { Select } from "antd";
-
 import type { Comparison } from "@/api_types/Comparison";
-import { buildOptions } from "@/utils";
+import { InlineSelect } from "@/components/general-purpose/InlineSelect";
 
 interface ComparisonTypeUiProps {
   type: Comparison["type"];
@@ -15,11 +13,6 @@ const options: Record<Comparison["type"], string> = {
 
 export function ComparisonTypeUi({ type, onChange }: ComparisonTypeUiProps) {
   return (
-    <Select
-      value={type}
-      onChange={onChange}
-      popupMatchSelectWidth={false}
-      options={buildOptions(options)}
-    />
+    <InlineSelect value={type} onChange={onChange} options={options} />
   );
 }
