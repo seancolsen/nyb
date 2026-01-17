@@ -1,5 +1,6 @@
 import type { Filter } from "@/api_types/Filter";
 import { Button } from "@/components/general-purpose/Button";
+import { PhrasingContainer } from "@/components/general-purpose/PhrasingContainer";
 
 import { ComparisonUi } from "./ComparisonUi";
 import { StatisticUi } from "./StatisticUi";
@@ -14,12 +15,12 @@ export function FilterUi({ filter, onChange, onRemove }: FilterUiProps) {
   const { statistic, comparison } = filter;
   return (
     <li>
-      <div>
+      <PhrasingContainer>
         <StatisticUi
           statistic={statistic}
           onChange={(s) => onChange({ statistic: s, comparison })}
         />
-      </div>
+      </PhrasingContainer>
       <div>
         <ComparisonUi
           comparison={comparison}

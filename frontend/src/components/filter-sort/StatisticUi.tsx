@@ -19,7 +19,7 @@ function buildStatistic(
 
 export function StatisticUi({ statistic, onChange }: Props) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <>
       <MeasurementUi
         measurement={statistic.measurement}
         onChange={(measurement) =>
@@ -32,6 +32,6 @@ export function StatisticUi({ statistic, onChange }: Props) {
           onChange(buildStatistic(statistic.measurement, selection))
         }
       />
-    </div>
+    </>
   );
 }

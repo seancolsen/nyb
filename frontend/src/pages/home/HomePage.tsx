@@ -1,31 +1,40 @@
 import { useState } from "react";
 
 import { api } from "@/api";
-import type { NameData } from "@/api_types";
+import type { NameData, Sort } from "@/api_types";
 import type { Filter } from "@/api_types/Filter";
 import type { SearchMethod } from "@/api_types/SearchMethod";
 import type { Statistic } from "@/api_types/Statistic";
 import { FilterUi } from "@/components/filter-sort/FilterUi";
 import { SearchMethodUi } from "@/components/filter-sort/SearchMethodUi";
-import { StatisticUi } from "@/components/filter-sort/StatisticUi";
+import { SortUi } from "@/components/filter-sort/SortUi";
 import { Button } from "@/components/general-purpose/Button";
 import { Fieldset } from "@/components/general-purpose/Fieldset";
 import { PhrasingConst } from "@/components/general-purpose/PhrasingConst";
+import { PhrasingContainer } from "@/components/general-purpose/PhrasingContainer";
 import { TextInput } from "@/components/general-purpose/TextInput";
+import { MAX_YEAR } from "@/constants";
 import { AppLayout } from "@/layouts/AppLayout";
 
 import { NameResult } from "./NameResult";
 
-function getDefaultSort(): Statistic {
+function getDefaultStatistic(): Statistic {
   return {
     measurement: { type: "popularity", genderSelection: "both" },
-    selection: { type: "oneYear", year: 2000 },
+    selection: { type: "oneYear", year: MAX_YEAR },
+  };
+}
+
+function getDefaultSort(): Sort {
+  return {
+    statistic: getDefaultStatistic(),
+    direction: "desc",
   };
 }
 
 function getDefaultFilter(): Filter {
   return {
-    statistic: getDefaultSort(),
+    statistic: getDefaultStatistic(),
     comparison: { type: "gt", value: 0 },
   };
 }
@@ -36,7 +45,7 @@ export function HomePage() {
   const [results, setResults] = useState<NameData[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filter[]>([]);
-  const [sort, setSort] = useState<Statistic>(getDefaultSort());
+  const [sort, setSort] = useState<Sort>(getDefaultSort());
 
   const handleSearch = async () => {
     const trimmedQuery = query.trim();
@@ -92,11 +101,11 @@ export function HomePage() {
         <Fieldset legend="Filters">
           <ul>
             <li>
-              <div className="flex flex-wrap gap-2">
+              <PhrasingContainer>
                 <PhrasingConst>Spelling</PhrasingConst>
                 <SearchMethodUi searchMethod={method} onChange={setMethod} />
                 <TextInput value={query} onChange={setQuery} />
-              </div>
+              </PhrasingContainer>
             </li>
             {filters.map((filter, index) => (
               <FilterUi
@@ -111,7 +120,7 @@ export function HomePage() {
         </Fieldset>
 
         <Fieldset legend="Sort by">
-          <StatisticUi statistic={sort} onChange={setSort} />
+          <SortUi sort={sort} onChange={setSort} />
         </Fieldset>
 
         <div>

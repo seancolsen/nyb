@@ -61,7 +61,7 @@ impl ToSql for F64Number {
 pub struct SearchNamesRequest {
     pub text_query: Option<TextQuery>,
     pub filters: Vec<Filter>,
-    pub sort: Option<Statistic>,
+    pub sort: Option<Sort>,
 }
 
 #[derive(Deserialize, Serialize, TS)]
@@ -87,6 +87,47 @@ pub enum SearchMethod {
 pub struct Filter {
     pub statistic: Statistic,
     pub comparison: Comparison,
+}
+
+#[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct Sort {
+    pub statistic: Statistic,
+    pub direction: SortDirection,
+}
+
+impl Default for Sort {
+    fn default() -> Self {
+        Self {
+            statistic: Statistic {
+                measurement: Measurement::Popularity {
+                    gender_selection: GenderSelection::Both,
+                },
+                selection: Selection::OneYear {
+                    year: MAX_YEAR as u16,
+                },
+            },
+            direction: SortDirection::Desc,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub enum SortDirection {
+    Asc,
+    Desc,
+}
+
+impl std::fmt::Display for SortDirection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SortDirection::Asc => write!(f, "ASC"),
+            SortDirection::Desc => write!(f, "DESC"),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
@@ -320,14 +361,14 @@ pub struct NameData {
 }
 
 struct Purpose {
-    sorting: bool,
+    sorting: Option<SortDirection>,
     filtering: Vec<Comparison>,
 }
 
 impl Default for Purpose {
     fn default() -> Self {
         Self {
-            sorting: false,
+            sorting: None,
             filtering: Vec::new(),
         }
     }
@@ -387,8 +428,8 @@ fn build_cte(
         write!(&mut query, " AS _{hash},").unwrap();
 
         let column = || format!("{name}._{hash}");
-        if purpose.sorting {
-            sorting_expression = Some(format!("{} DESC", column()));
+        if let Some(direction) = purpose.sorting {
+            sorting_expression = Some(format!("{} {}", column(), direction));
         }
         for comparison in purpose.filtering {
             let expr = match comparison {
@@ -431,14 +472,7 @@ pub async fn search_names(
     state: AppState,
     request: SearchNamesRequest,
 ) -> Result<SearchNamesResponse, String> {
-    let sort = request.sort.unwrap_or(Statistic {
-        measurement: Measurement::Popularity {
-            gender_selection: GenderSelection::Both,
-        },
-        selection: Selection::OneYear {
-            year: MAX_YEAR as u16 - 15,
-        },
-    });
+    let sort = request.sort.unwrap_or(Sort::default());
 
     let range_map = {
         let mut map = HashMap::<Range, HashMap<Statistic, Purpose>>::new();
@@ -449,11 +483,11 @@ pub async fn search_names(
                 .or_default()
                 .add_filter(filter.comparison);
         }
-        map.entry(sort.selection.get_range())
+        map.entry(sort.statistic.selection.get_range())
             .or_default()
-            .entry(sort)
+            .entry(sort.statistic)
             .or_default()
-            .sorting = true;
+            .sorting = Some(sort.direction);
         map
     };
 
