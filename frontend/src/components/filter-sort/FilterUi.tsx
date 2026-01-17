@@ -18,6 +18,7 @@ export function FilterUi({ filter, onChange, onRemove }: FilterUiProps) {
       <PhrasingContainer>
         <StatisticUi
           statistic={statistic}
+          capitalized={true}
           onChange={(s) => onChange({ statistic: s, comparison })}
         />
       </PhrasingContainer>

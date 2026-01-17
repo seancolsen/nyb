@@ -2,9 +2,9 @@ import type { SearchMethod } from "@/api_types/SearchMethod";
 import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 const options: Record<SearchMethod, string> = {
-  contains: "Contains",
-  startsWith: "Starts with",
-  regExp: "Regular expression",
+  contains: "contains",
+  startsWith: "starts with",
+  regExp: "matches regexp",
 };
 
 interface Props {

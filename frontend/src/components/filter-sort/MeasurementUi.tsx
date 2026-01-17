@@ -6,6 +6,7 @@ import { MeasurementTypeUi } from "./MeasurementTypeUi";
 
 interface MeasurementUiProps {
   measurement: Measurement;
+  capitalized?: boolean;
   onChange: (measurement: Measurement) => void;
 }
 
@@ -39,13 +40,18 @@ function buildMeasurement(
     : { type };
 }
 
-export function MeasurementUi({ measurement, onChange }: MeasurementUiProps) {
+export function MeasurementUi({
+  measurement,
+  capitalized,
+  onChange,
+}: MeasurementUiProps) {
   const genderSelection = getGenderSelection(measurement);
 
   return (
     <>
       <MeasurementTypeUi
         value={measurement.type}
+        capitalized={capitalized}
         onChange={(type) => onChange(buildMeasurement(type, genderSelection))}
       />
 

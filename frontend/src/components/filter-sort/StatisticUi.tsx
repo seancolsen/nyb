@@ -7,6 +7,7 @@ import { SelectionUi } from "./SelectionUi";
 
 interface Props {
   statistic: Statistic;
+  capitalized?: boolean;
   onChange: (statistic: Statistic) => void;
 }
 
@@ -17,11 +18,12 @@ function buildStatistic(
   return { measurement, selection };
 }
 
-export function StatisticUi({ statistic, onChange }: Props) {
+export function StatisticUi({ statistic, capitalized, onChange }: Props) {
   return (
     <>
       <MeasurementUi
         measurement={statistic.measurement}
+        capitalized={capitalized}
         onChange={(measurement) =>
           onChange(buildStatistic(measurement, statistic.selection))
         }

@@ -28,3 +28,8 @@ export function match<
 export function exhaustive(value: never): never {
   throw new Error(`Exhaustive condition error ${JSON.stringify(value)}`);
 }
+
+export function capitalize(s: string): string {
+  if (s.length === 0) return "";
+  return s[0].toUpperCase() + s.slice(1);
+}
