@@ -6,8 +6,8 @@ export function Fieldset({
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className="border border-gray-300 rounded-md p-2">
-      <legend className="">{legend}</legend>
+    <fieldset className="border-2 border-gray-200 rounded-md p-2">
+      <legend className="ml-1 px-2">{legend}</legend>
       {children}
     </fieldset>
   );

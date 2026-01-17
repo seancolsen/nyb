@@ -12,7 +12,12 @@ export function Button({
   onClick,
 }: Props) {
   return (
-    <button onClick={onClick} type={type} disabled={disabled}>
+    <button
+      className="px-2 py-1 rounded-md border border-gray-300 cursor-pointer hover:border-black"
+      onClick={onClick}
+      type={type}
+      disabled={disabled}
+    >
       {children}
     </button>
   );

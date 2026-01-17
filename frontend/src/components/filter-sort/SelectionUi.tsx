@@ -2,7 +2,7 @@ import type { AggregateFunction } from "@/api_types/AggregateFunction";
 import type { Generation } from "@/api_types/Generation";
 import type { Range } from "@/api_types/Range";
 import type { Selection } from "@/api_types/Selection";
-import { NumberInput } from "@/components/general-purpose/NumberInput";
+import { PhrasingNumberInput } from "@/components/general-purpose/PhrasingNumberInput";
 import { MAX_YEAR } from "@/constants";
 import { exhaustive, match } from "@/utils";
 
@@ -124,7 +124,7 @@ export function SelectionUi({ selection, onChange }: Props) {
     return (
       <>
         {aggregateStrategyUi}
-        <NumberInput
+        <PhrasingNumberInput
           value={selection.year}
           onChange={(year) =>
             year && onChange(buildSingleYearSelection({ year }))
@@ -160,7 +160,7 @@ export function SelectionUi({ selection, onChange }: Props) {
 
         {range.type === "previous" && (
           <>
-            <NumberInput
+            <PhrasingNumberInput
               value={range.previous}
               onChange={(previous) =>
                 previous &&
@@ -175,7 +175,7 @@ export function SelectionUi({ selection, onChange }: Props) {
 
         {range.type === "between" && (
           <>
-            <NumberInput
+            <PhrasingNumberInput
               value={range.min}
               onChange={(min) =>
                 min &&
@@ -189,7 +189,7 @@ export function SelectionUi({ selection, onChange }: Props) {
               }
             />
             <span>and</span>
-            <NumberInput
+            <PhrasingNumberInput
               value={range.max}
               onChange={(max) =>
                 max &&

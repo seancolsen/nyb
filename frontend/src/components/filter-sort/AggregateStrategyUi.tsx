@@ -1,5 +1,5 @@
 import type { AggregateFunction } from "@/api_types/AggregateFunction";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 export type AggregateStrategy = AggregateFunction | "inYear";
 
@@ -18,7 +18,7 @@ const options: Record<AggregateStrategy, string> = {
 
 export function AggregateStrategyUi({ aggregateStrategy, onChange }: Props) {
   return (
-    <InlineSelect
+    <PhrasingSelect
       value={aggregateStrategy}
       onChange={onChange}
       options={options}

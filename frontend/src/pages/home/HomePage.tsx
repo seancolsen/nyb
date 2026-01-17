@@ -10,6 +10,7 @@ import { SearchMethodUi } from "@/components/filter-sort/SearchMethodUi";
 import { StatisticUi } from "@/components/filter-sort/StatisticUi";
 import { Button } from "@/components/general-purpose/Button";
 import { Fieldset } from "@/components/general-purpose/Fieldset";
+import { PhrasingConst } from "@/components/general-purpose/PhrasingConst";
 import { TextInput } from "@/components/general-purpose/TextInput";
 import { AppLayout } from "@/layouts/AppLayout";
 
@@ -86,22 +87,26 @@ export function HomePage() {
   return (
     <AppLayout>
       <h2>Search Names</h2>
-      <form onSubmit={handleSubmit}>
-        <Fieldset legend="Spelling">
-          Name
-          <SearchMethodUi searchMethod={method} onChange={setMethod} />
-          <TextInput value={query} onChange={setQuery} />
-        </Fieldset>
 
-        <Fieldset legend="Statistics filters">
-          {filters.map((filter, index) => (
-            <FilterUi
-              key={index}
-              filter={filter}
-              onChange={(f: Filter) => updateFilter(index, f)}
-              onRemove={() => removeFilter(index)}
-            />
-          ))}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <Fieldset legend="Filters">
+          <ul>
+            <li>
+              <div className="flex flex-wrap gap-2">
+                <PhrasingConst>Spelling</PhrasingConst>
+                <SearchMethodUi searchMethod={method} onChange={setMethod} />
+                <TextInput value={query} onChange={setQuery} />
+              </div>
+            </li>
+            {filters.map((filter, index) => (
+              <FilterUi
+                key={index}
+                filter={filter}
+                onChange={(f: Filter) => updateFilter(index, f)}
+                onRemove={() => removeFilter(index)}
+              />
+            ))}
+          </ul>
           <Button onClick={addFilter}>Add Filter</Button>
         </Fieldset>
 
@@ -109,9 +114,11 @@ export function HomePage() {
           <StatisticUi statistic={sort} onChange={setSort} />
         </Fieldset>
 
-        <Button type="submit" disabled={loading}>
-          Show names
-        </Button>
+        <div>
+          <Button type="submit" disabled={loading}>
+            Show names
+          </Button>
+        </div>
       </form>
 
       {results.map((name) => (

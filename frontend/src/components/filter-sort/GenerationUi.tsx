@@ -1,5 +1,5 @@
 import type { Generation } from "@/api_types/Generation";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 interface Props {
   generation: Generation;
@@ -19,6 +19,6 @@ const options: Record<Generation, string> = {
 
 export function GenerationUi({ generation, onChange }: Props) {
   return (
-    <InlineSelect value={generation} onChange={onChange} options={options} />
+    <PhrasingSelect value={generation} onChange={onChange} options={options} />
   );
 }

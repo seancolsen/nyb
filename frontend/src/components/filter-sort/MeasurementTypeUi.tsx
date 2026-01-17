@@ -1,5 +1,5 @@
 import type { Measurement } from "@/api_types/Measurement";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 interface MeasurementTypeUiProps {
   value: Measurement["type"];
@@ -16,7 +16,5 @@ const options: Record<Measurement["type"], string> = {
 };
 
 export function MeasurementTypeUi({ value, onChange }: MeasurementTypeUiProps) {
-  return (
-    <InlineSelect value={value} onChange={onChange} options={options} />
-  );
+  return <PhrasingSelect value={value} onChange={onChange} options={options} />;
 }

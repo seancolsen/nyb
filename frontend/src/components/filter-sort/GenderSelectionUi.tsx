@@ -1,5 +1,5 @@
 import type { GenderSelection } from "@/api_types/GenderSelection";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 interface GenderSelectionUiProps {
   genderSelection: GenderSelection;
@@ -17,7 +17,7 @@ export function GenderSelectionUi({
   onChange,
 }: GenderSelectionUiProps) {
   return (
-    <InlineSelect
+    <PhrasingSelect
       options={options}
       value={genderSelection}
       onChange={onChange}

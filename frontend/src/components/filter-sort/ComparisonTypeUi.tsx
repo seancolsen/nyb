@@ -1,5 +1,5 @@
 import type { Comparison } from "@/api_types/Comparison";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 interface ComparisonTypeUiProps {
   type: Comparison["type"];
@@ -12,7 +12,5 @@ const options: Record<Comparison["type"], string> = {
 };
 
 export function ComparisonTypeUi({ type, onChange }: ComparisonTypeUiProps) {
-  return (
-    <InlineSelect value={type} onChange={onChange} options={options} />
-  );
+  return <PhrasingSelect value={type} onChange={onChange} options={options} />;
 }

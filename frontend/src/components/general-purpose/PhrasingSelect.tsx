@@ -11,7 +11,7 @@ interface Props<V extends string> {
   style?: React.CSSProperties;
 }
 
-export function InlineSelect<V extends string>(p: Props<V>) {
+export function PhrasingSelect<V extends string>(p: Props<V>) {
   return (
     <Select.Root
       disabled={p.disabled}
@@ -20,19 +20,26 @@ export function InlineSelect<V extends string>(p: Props<V>) {
     >
       <Select.Trigger
         className={cn(
-          "inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md border border-gray-300",
+          "px-1 rounded-xl border-b-5 border-gray-300 cursor-pointer hover:border-black",
           p.className,
         )}
       >
         <Select.Value />
-        <Select.Icon aria-hidden>▾</Select.Icon>
       </Select.Trigger>
 
       <Select.Portal>
-        <Select.Content position="popper" sideOffset={4}>
-          <Select.Viewport>
+        <Select.Content
+          position="popper"
+          sideOffset={4}
+          className="bg-white rounded shadow-lg"
+        >
+          <Select.Viewport className="p-1">
             {Object.entries(p.options).map(([option, label]) => (
-              <Select.Item key={option} value={option}>
+              <Select.Item
+                key={option}
+                value={option}
+                className="p-1 rounded-md cursor-pointer hover:bg-gray-100"
+              >
                 <Select.ItemText>{label as React.ReactNode}</Select.ItemText>
               </Select.Item>
             ))}

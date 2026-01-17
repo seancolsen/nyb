@@ -13,16 +13,20 @@ interface FilterUiProps {
 export function FilterUi({ filter, onChange, onRemove }: FilterUiProps) {
   const { statistic, comparison } = filter;
   return (
-    <div>
-      <StatisticUi
-        statistic={statistic}
-        onChange={(s) => onChange({ statistic: s, comparison })}
-      />
-      <ComparisonUi
-        comparison={comparison}
-        onChange={(c) => onChange({ statistic, comparison: c })}
-      />
+    <li>
+      <div>
+        <StatisticUi
+          statistic={statistic}
+          onChange={(s) => onChange({ statistic: s, comparison })}
+        />
+      </div>
+      <div>
+        <ComparisonUi
+          comparison={comparison}
+          onChange={(c) => onChange({ statistic, comparison: c })}
+        />
+      </div>
       <Button onClick={onRemove}>Remove</Button>
-    </div>
+    </li>
   );
 }

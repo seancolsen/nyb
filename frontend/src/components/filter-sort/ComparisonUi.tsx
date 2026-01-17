@@ -1,5 +1,5 @@
 import type { Comparison } from "@/api_types/Comparison";
-import { NumberInput } from "@/components/general-purpose/NumberInput";
+import { PhrasingNumberInput } from "@/components/general-purpose/PhrasingNumberInput";
 
 import { ComparisonTypeUi } from "./ComparisonTypeUi";
 
@@ -22,7 +22,7 @@ export function ComparisonUi({ comparison, onChange }: Props) {
         type={comparison.type}
         onChange={(type) => onChange(buildComparison(type, comparison.value))}
       />
-      <NumberInput
+      <PhrasingNumberInput
         value={comparison.value}
         onChange={(value) => onChange(buildComparison(comparison.type, value))}
       />

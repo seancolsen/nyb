@@ -1,5 +1,5 @@
 import type { Range } from "@/api_types/Range";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 type RangeType = Exclude<Range["type"], "allLivingPeople">;
 
@@ -17,6 +17,6 @@ const options: Record<RangeType, string> = {
 
 export function RangeTypeUi({ rangeType, onChange }: Props) {
   return (
-    <InlineSelect value={rangeType} onChange={onChange} options={options} />
+    <PhrasingSelect value={rangeType} onChange={onChange} options={options} />
   );
 }

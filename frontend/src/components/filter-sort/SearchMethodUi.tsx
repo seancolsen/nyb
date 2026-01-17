@@ -1,5 +1,5 @@
 import type { SearchMethod } from "@/api_types/SearchMethod";
-import { InlineSelect } from "@/components/general-purpose/InlineSelect";
+import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
 
 const options: Record<SearchMethod, string> = {
   contains: "Contains",
@@ -14,6 +14,10 @@ interface Props {
 
 export function SearchMethodUi({ searchMethod, onChange }: Props) {
   return (
-    <InlineSelect value={searchMethod} onChange={onChange} options={options} />
+    <PhrasingSelect
+      value={searchMethod}
+      onChange={onChange}
+      options={options}
+    />
   );
 }
