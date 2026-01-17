@@ -1,3 +1,7 @@
+import * as Select from "@radix-ui/react-select";
+
+import { cn } from "@/utils";
+
 interface Props<V extends string> {
   options: Record<V, React.ReactNode>;
   value: V;
@@ -9,18 +13,32 @@ interface Props<V extends string> {
 
 export function InlineSelect<V extends string>(p: Props<V>) {
   return (
-    <select
-      className={p.className}
-      style={{ minWidth: "min-content" }}
+    <Select.Root
       disabled={p.disabled}
       value={p.value}
-      onChange={(e) => p.onChange(e.target.value as V)}
+      onValueChange={p.onChange}
     >
-      {Object.entries(p.options).map(([option, label]) => (
-        <option key={option} value={option}>
-          {label as React.ReactNode}
-        </option>
-      ))}
-    </select>
+      <Select.Trigger
+        className={cn(
+          "inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md border border-gray-300",
+          p.className,
+        )}
+      >
+        <Select.Value />
+        <Select.Icon aria-hidden>▾</Select.Icon>
+      </Select.Trigger>
+
+      <Select.Portal>
+        <Select.Content position="popper" sideOffset={4}>
+          <Select.Viewport>
+            {Object.entries(p.options).map(([option, label]) => (
+              <Select.Item key={option} value={option}>
+                <Select.ItemText>{label as React.ReactNode}</Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.Viewport>
+        </Select.Content>
+      </Select.Portal>
+    </Select.Root>
   );
 }
