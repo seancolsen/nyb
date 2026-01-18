@@ -3,7 +3,7 @@ import type { Measurement } from "@/api_types/Measurement";
 
 export const measurementTypeOptions: Record<Measurement["type"], string> = {
   popularity: "Popularity",
-  count: "Count",
+  count: "Annual count",
   denseRank: "Rank",
   femininity: "Femininity",
   masculinity: "Masculinity",
