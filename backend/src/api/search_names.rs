@@ -59,7 +59,6 @@ impl ToSql for F64Number {
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct SearchNamesRequest {
-    pub text_query: Option<TextQuery>,
     pub filters: Vec<Filter>,
     pub sort: Option<Sort>,
 }
@@ -82,9 +81,17 @@ pub enum SearchMethod {
 }
 
 #[derive(Deserialize, Serialize, TS)]
+#[serde(tag = "type", rename_all = "camelCase")]
+#[ts(export)]
+pub enum Filter {
+    Numerical(StatisticFilter),
+    Textual(TextQuery),
+}
+
+#[derive(Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
-pub struct Filter {
+pub struct StatisticFilter {
     pub statistic: Statistic,
     pub comparison: Comparison,
 }
@@ -473,15 +480,24 @@ pub async fn search_names(
     request: SearchNamesRequest,
 ) -> Result<SearchNamesResponse, String> {
     let sort = request.sort.unwrap_or(Sort::default());
+    let mut statistic_filters = Vec::<StatisticFilter>::new();
+    let mut text_queries = Vec::<TextQuery>::new();
+
+    for filter in request.filters {
+        match filter {
+            Filter::Numerical(f) => statistic_filters.push(f),
+            Filter::Textual(f) => text_queries.push(f),
+        }
+    }
 
     let range_map = {
         let mut map = HashMap::<Range, HashMap<Statistic, Purpose>>::new();
-        for filter in request.filters {
+        for filter in statistic_filters {
             map.entry(filter.statistic.selection.get_range())
                 .or_default()
                 .entry(filter.statistic)
                 .or_default()
-                .add_filter(filter.comparison);
+                .add_filter(filter.comparison)
         }
         map.entry(sort.statistic.selection.get_range())
             .or_default()
@@ -530,7 +546,7 @@ pub async fn search_names(
         write!(&mut query, "\n{expression}").unwrap();
     }
 
-    if let Some(text_query) = request.text_query {
+    for text_query in text_queries {
         match text_query.method {
             SearchMethod::Contains => {
                 let p = params.set(Box::new(format!("%{}%", text_query.query)));

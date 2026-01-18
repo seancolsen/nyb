@@ -17,7 +17,6 @@ import type { NameData } from "./NameData.ts";
 import type { SearchNamesResponse } from "./SearchNamesResponse.ts";
 import type { Filter } from "./Filter.ts";
 import type { Sort } from "./Sort.ts";
-import type { TextQuery } from "./TextQuery.ts";
 import type { SearchNamesRequest } from "./SearchNamesRequest.ts";
 
 export type { NameHistoryData } from "./NameHistoryData.ts";
@@ -27,7 +26,6 @@ export type { NameData } from "./NameData.ts";
 export type { SearchNamesResponse } from "./SearchNamesResponse.ts";
 export type { Filter } from "./Filter.ts";
 export type { Sort } from "./Sort.ts";
-export type { TextQuery } from "./TextQuery.ts";
 export type { SearchNamesRequest } from "./SearchNamesRequest.ts";
 
 export type QubitServer = {
