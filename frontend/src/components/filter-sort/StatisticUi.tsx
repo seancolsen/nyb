@@ -1,29 +1,23 @@
-import type { Measurement } from "@/api_types/Measurement";
-import type { Selection } from "@/api_types/Selection";
 import type { Statistic } from "@/api_types/Statistic";
 
 import { MeasurementUi } from "./MeasurementUi";
 import { SelectionUi } from "./SelectionUi";
+import { buildStatistic } from "./statistic.utils";
 
-interface Props {
+export function StatisticUi({
+  statistic,
+  hasMeasurementType,
+  onChange,
+}: {
   statistic: Statistic;
-  capitalized?: boolean;
+  hasMeasurementType?: boolean;
   onChange: (statistic: Statistic) => void;
-}
-
-function buildStatistic(
-  measurement: Measurement,
-  selection: Selection,
-): Statistic {
-  return { measurement, selection };
-}
-
-export function StatisticUi({ statistic, capitalized, onChange }: Props) {
+}) {
   return (
     <>
       <MeasurementUi
         measurement={statistic.measurement}
-        capitalized={capitalized}
+        hasMeasurementType={hasMeasurementType}
         onChange={(measurement) =>
           onChange(buildStatistic(measurement, statistic.selection))
         }

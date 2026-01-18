@@ -3,5 +3,6 @@
   "rust-analyzer.lens.enable": false,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "editor.wordBasedSuggestions": "off"
 }

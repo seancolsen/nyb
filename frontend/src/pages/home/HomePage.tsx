@@ -3,37 +3,15 @@ import { useState } from "react";
 import { api } from "@/api";
 import type { NameData, Sort } from "@/api_types";
 import type { Filter } from "@/api_types/Filter";
-import type { Statistic } from "@/api_types/Statistic";
+import { getDefaultNumericalFilter } from "@/components/filter-sort/filter.utils";
 import { FilterUi } from "@/components/filter-sort/FilterUi";
+import { getDefaultSort } from "@/components/filter-sort/sort.utils";
 import { SortUi } from "@/components/filter-sort/SortUi";
 import { Button } from "@/components/general-purpose/Button";
 import { Fieldset } from "@/components/general-purpose/Fieldset";
-import { MAX_YEAR } from "@/constants";
 import { AppLayout } from "@/layouts/AppLayout";
 
 import { NameResult } from "./NameResult";
-
-function getDefaultStatistic(): Statistic {
-  return {
-    measurement: { type: "popularity", genderSelection: "both" },
-    selection: { type: "oneYear", year: MAX_YEAR },
-  };
-}
-
-function getDefaultSort(): Sort {
-  return {
-    statistic: getDefaultStatistic(),
-    direction: "desc",
-  };
-}
-
-function getDefaultFilter(): Filter {
-  return {
-    type: "numerical",
-    statistic: getDefaultStatistic(),
-    comparison: { type: "gt", value: 0 },
-  };
-}
 
 export function HomePage() {
   const [results, setResults] = useState<NameData[]>([]);
@@ -69,7 +47,7 @@ export function HomePage() {
   };
 
   const addFilter = () => {
-    setFilters([...filters, getDefaultFilter()]);
+    setFilters([...filters, getDefaultNumericalFilter()]);
   };
 
   const updateFilter = (index: number, filter: Filter) => {
