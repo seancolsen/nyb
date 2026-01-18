@@ -11,19 +11,25 @@ interface Props {
 
 export function SortUi({ sort, onChange }: Props) {
   return (
-    <PhrasingContainer>
-      <SortDirectionUi
-        direction={sort.direction}
-        onChange={(direction) =>
-          onChange({ statistic: sort.statistic, direction })
-        }
-      />
-      <StatisticUi
-        statistic={sort.statistic}
-        onChange={(statistic) =>
-          onChange({ statistic, direction: sort.direction })
-        }
-      />
-    </PhrasingContainer>
+    <div className="flex flex-col gap-2">
+      <div>
+        <PhrasingContainer>
+          <StatisticUi
+            statistic={sort.statistic}
+            onChange={(statistic) =>
+              onChange({ statistic, direction: sort.direction })
+            }
+          />
+        </PhrasingContainer>
+      </div>
+      <div>
+        <SortDirectionUi
+          direction={sort.direction}
+          onChange={(direction) =>
+            onChange({ statistic: sort.statistic, direction })
+          }
+        />
+      </div>
+    </div>
   );
 }

@@ -2,12 +2,12 @@ import type { GenderSelection } from "@/api_types/GenderSelection";
 import type { Measurement } from "@/api_types/Measurement";
 
 export const measurementTypeOptions: Record<Measurement["type"], string> = {
-  popularity: "popularity",
-  count: "count",
-  denseRank: "rank",
-  femininity: "femininity",
-  masculinity: "masculinity",
-  genderNeutrality: "gender neutrality",
+  popularity: "Popularity",
+  count: "Count",
+  denseRank: "Rank",
+  femininity: "Femininity",
+  masculinity: "Masculinity",
+  genderNeutrality: "Gender neutrality",
 };
 
 export function getGenderSelection(

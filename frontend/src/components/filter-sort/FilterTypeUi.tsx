@@ -1,5 +1,4 @@
 import { PhrasingSelect } from "@/components/general-purpose/PhrasingSelect";
-import { capitalizeValues } from "@/utils";
 
 import { measurementTypeOptions } from "./measurement.utils";
 
@@ -7,7 +6,7 @@ import type { FilterType } from "./filter.utils";
 
 const options: Record<FilterType, string> = {
   spelling: "Spelling",
-  ...capitalizeValues(measurementTypeOptions),
+  ...measurementTypeOptions,
 };
 
 export function FilterTypeUi({
