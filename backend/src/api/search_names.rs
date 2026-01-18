@@ -185,7 +185,7 @@ impl Measurement {
                 GenderSelection::Both => "count_both",
             },
             Measurement::Masculinity => "((1.0 - gender_balance) / 2.0)",
-            Measurement::Femininity => "((gender_banance + 1.0 ) / 2.0)",
+            Measurement::Femininity => "((gender_balance + 1.0 ) / 2.0)",
             Measurement::GenderNeutrality => "gender_neutrality",
         }
     }
