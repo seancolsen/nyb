@@ -2,6 +2,7 @@ import type { AggregateFunction } from "@/api_types/AggregateFunction";
 import type { Generation } from "@/api_types/Generation";
 import type { Range } from "@/api_types/Range";
 import type { Selection } from "@/api_types/Selection";
+import { PhrasingConst } from "@/components/general-purpose/PhrasingConst";
 import { PhrasingNumberInput } from "@/components/general-purpose/PhrasingNumberInput";
 import { MAX_YEAR } from "@/constants";
 import { exhaustive, match } from "@/utils";
@@ -169,7 +170,7 @@ export function SelectionUi({ selection, onChange }: Props) {
                 )
               }
             />
-            <span>years</span>
+            <PhrasingConst>years</PhrasingConst>
           </>
         )}
 
@@ -188,7 +189,7 @@ export function SelectionUi({ selection, onChange }: Props) {
                 )
               }
             />
-            <span>and</span>
+            <PhrasingConst>and</PhrasingConst>
             <PhrasingNumberInput
               value={range.max}
               onChange={(max) =>

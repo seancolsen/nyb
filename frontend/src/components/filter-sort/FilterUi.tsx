@@ -33,7 +33,7 @@ export function FilterUi({
 
   return (
     <li>
-      <div>
+      <div className="flex flex-col gap-2">
         {match(filter, "type", {
           textual: (textQuery) => (
             <PhrasingContainer>

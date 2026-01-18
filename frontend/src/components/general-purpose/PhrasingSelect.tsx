@@ -20,7 +20,7 @@ export function PhrasingSelect<V extends string>(p: Props<V>) {
     >
       <Select.Trigger
         className={cn(
-          "px-1 rounded-xl border-b-5 border-gray-300 cursor-pointer hover:border-black",
+          "px-1.5 rounded-xl border-b-5 border-gray-300 cursor-pointer hover:border-black",
           p.className,
         )}
       >

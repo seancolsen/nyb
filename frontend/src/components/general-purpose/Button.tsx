@@ -13,7 +13,7 @@ export function Button({
 }: Props) {
   return (
     <button
-      className="px-2 py-1 rounded-md border border-gray-300 cursor-pointer hover:border-black"
+      className="px-2 py-1 rounded-md bg-gray-200 cursor-pointer hover:bg-gray-300"
       onClick={onClick}
       type={type}
       disabled={disabled}
