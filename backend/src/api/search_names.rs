@@ -365,6 +365,7 @@ pub struct SearchNamesResponse {
 pub struct NameData {
     pub name: String,
     pub shape: String,
+    pub sorting_value: f64,
 }
 
 struct Purpose {
@@ -391,7 +392,7 @@ struct Cte {
     name: String,
     query: String,
     filtering_expressions: Vec<String>,
-    sorting_expression: Option<String>,
+    sorting_expression: Option<(String, SortDirection)>,
 }
 
 fn build_cte(
@@ -402,7 +403,7 @@ fn build_cte(
     let name = range.gen_cte_name();
     let single_year = range.get_single_year();
     let is_multi_year = single_year.is_none();
-    let mut sorting_expression: Option<String> = None;
+    let mut sorting_expression: Option<(String, SortDirection)> = None;
     let mut filtering_expressions = Vec::<String>::new();
     let mut query = String::with_capacity(1000);
 
@@ -436,7 +437,7 @@ fn build_cte(
 
         let column = || format!("{name}._{hash}");
         if let Some(direction) = purpose.sorting {
-            sorting_expression = Some(format!("{} {}", column(), direction));
+            sorting_expression = Some((column(), direction));
         }
         for comparison in purpose.filtering {
             let expr = match comparison {
@@ -510,7 +511,7 @@ pub async fn search_names(
     let mut query = String::with_capacity(1000);
     let mut params = QueryParamMap::new();
     let mut where_expressions = Vec::<String>::new();
-    let mut sorting_expression: Option<String> = None;
+    let mut sorting_expression: Option<(String, SortDirection)> = None;
     let mut join_expressions = Vec::<String>::new();
 
     let ctes: Vec<Cte> = range_map
@@ -532,15 +533,20 @@ pub async fn search_names(
         }
 
         where_expressions.extend(cte.filtering_expressions);
-        if let Some(e) = cte.sorting_expression {
-            sorting_expression = Some(e);
+        if let Some((expr, direction)) = cte.sorting_expression {
+            sorting_expression = Some((expr, direction));
         }
         join_expressions.push(format!("JOIN {name} ON name.id = {name}.name"));
     }
     if has_ctes {
         query.push_str("\n");
     }
-    query.push_str("SELECT\n  name.name,\n  name.condensed_shape\nFROM name");
+    query.push_str("SELECT\n  name.name,\n  name.condensed_shape,");
+    match &sorting_expression {
+        Some((expression, _)) => write!(&mut query, "\n  {expression}").unwrap(),
+        None => query.push_str("\n  0"),
+    }
+    query.push_str("\nFROM name");
 
     for expression in join_expressions {
         write!(&mut query, "\n{expression}").unwrap();
@@ -574,8 +580,8 @@ pub async fn search_names(
         }
     }
 
-    if let Some(expression) = sorting_expression {
-        write!(&mut query, "\nORDER BY {expression}").unwrap();
+    if let Some((expression, direction)) = sorting_expression {
+        write!(&mut query, "\nORDER BY {expression} {direction}").unwrap();
     }
 
     query.push_str("\nLIMIT 500");
@@ -606,7 +612,12 @@ pub async fn search_names(
     while let Some(row) = rows.next().map_err(|e| e.to_string())? {
         let name = row.get::<_, String>(0).map_err(|e| e.to_string())?;
         let shape = row.get::<_, String>(1).map_err(|e| e.to_string())?;
-        names.push(NameData { name, shape });
+        let sorting_value = row.get::<_, f64>(2).map_err(|e| e.to_string())?;
+        names.push(NameData {
+            name,
+            shape,
+            sorting_value,
+        });
     }
 
     Ok(SearchNamesResponse { names })
