@@ -18,6 +18,7 @@ export function HomePage() {
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filter[]>([]);
   const [sort, setSort] = useState<Sort>(getDefaultSort());
+  const [appliedSort, setAppliedSort] = useState<Sort | undefined>(undefined);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -29,13 +30,16 @@ export function HomePage() {
 
       if ("Ok" in result) {
         setResults(result.Ok.names);
+        setAppliedSort(sort);
       } else {
         console.error("Error searching names:", result.Err);
         setResults([]);
+        setAppliedSort(undefined);
       }
     } catch (error) {
       console.error("Failed to search names:", error);
       setResults([]);
+      setAppliedSort(undefined);
     } finally {
       setLoading(false);
     }
@@ -98,7 +102,11 @@ export function HomePage() {
         "
       >
         {results.map((name) => (
-          <NameResult key={name.name} name={name} />
+          <NameResult
+            key={name.name}
+            name={name}
+            sortingMeasurementType={appliedSort?.statistic.measurement.type}
+          />
         ))}
       </div>
     </AppLayout>

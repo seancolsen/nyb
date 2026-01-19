@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
 
 import type { NameData } from "@/api_types";
+import type { Measurement } from "@/api_types/Measurement";
 import { NameHistoryChartMini } from "@/components/charts/NameHistoryChartMini";
+import {
+  formatMeasurementValue,
+  measurementTypeOptions,
+} from "@/components/filter-sort/measurement.utils";
 
-interface NameResultProps {
+export function NameResult({
+  name,
+  sortingMeasurementType,
+}: {
   name: NameData;
-}
-
-export function NameResult({ name }: NameResultProps) {
+  sortingMeasurementType?: Measurement["type"];
+}) {
   return (
     <Link
       to={`/${name.name}`}
@@ -22,10 +29,16 @@ export function NameResult({ name }: NameResultProps) {
 
       <span className="text-xl group-hover:underline">{name.name}</span>
 
-      <div className="text-sm text-gray-400">
-        <span className="hidden @md:inline">Measurement: </span>
-        <span>0%</span>
-      </div>
+      {sortingMeasurementType && (
+        <div className="text-sm text-gray-400">
+          <span className="hidden @md:inline">
+            {measurementTypeOptions[sortingMeasurementType]}:{" "}
+          </span>
+          <span>
+            {formatMeasurementValue(sortingMeasurementType, name.sortingValue)}
+          </span>
+        </div>
+      )}
     </Link>
   );
 }

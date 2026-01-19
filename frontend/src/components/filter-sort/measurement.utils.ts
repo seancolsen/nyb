@@ -48,3 +48,26 @@ export function changeMeasurementType(
 ): Measurement {
   return buildMeasurement(newType, getGenderSelection(measurement));
 }
+
+function formatPercentage(v: number): string {
+  return `${(v * 100).toFixed(1)}%`;
+}
+
+const measurementFormatterMap: Record<
+  Measurement["type"],
+  (v: number) => string
+> = {
+  popularity: formatPercentage,
+  count: String,
+  denseRank: String,
+  femininity: formatPercentage,
+  masculinity: formatPercentage,
+  genderNeutrality: formatPercentage,
+};
+
+export function formatMeasurementValue(
+  type: Measurement["type"],
+  value: number,
+): string {
+  return measurementFormatterMap[type](value);
+}
