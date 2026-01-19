@@ -2,6 +2,8 @@ import * as Select from "@radix-ui/react-select";
 
 import { cn } from "@/utils";
 
+import { phrasingClasses } from "./phrasing.utils";
+
 interface Props<V extends string> {
   options: Record<V, React.ReactNode>;
   value: V;
@@ -18,12 +20,7 @@ export function PhrasingSelect<V extends string>(p: Props<V>) {
       value={p.value}
       onValueChange={p.onChange}
     >
-      <Select.Trigger
-        className={cn(
-          "px-1.5 rounded-xl border-b-5 border-gray-300 cursor-pointer hover:border-black",
-          p.className,
-        )}
-      >
+      <Select.Trigger className={cn(phrasingClasses, p.className)}>
         <Select.Value />
       </Select.Trigger>
 
@@ -31,14 +28,19 @@ export function PhrasingSelect<V extends string>(p: Props<V>) {
         <Select.Content
           position="popper"
           sideOffset={4}
-          className="bg-white rounded shadow-lg"
+          className="
+            bg-gray-100 rounded shadow-lg/20 border border-gray-300
+          "
         >
           <Select.Viewport className="p-1">
             {Object.entries(p.options).map(([option, label]) => (
               <Select.Item
                 key={option}
                 value={option}
-                className="p-1 rounded-md cursor-pointer hover:bg-gray-100"
+                className="
+                  p-1 rounded-md cursor-pointer focus:bg-violet-200 focus:border-none
+                  outline-none
+                "
               >
                 <Select.ItemText>{label as React.ReactNode}</Select.ItemText>
               </Select.Item>

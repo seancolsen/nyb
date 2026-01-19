@@ -1,4 +1,7 @@
+import { cn } from "@/utils";
+
 interface Props {
+  className?: string;
   children: React.ReactNode;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
@@ -6,6 +9,7 @@ interface Props {
 }
 
 export function Button({
+  className,
   children,
   type = "button",
   disabled = false,
@@ -13,7 +17,10 @@ export function Button({
 }: Props) {
   return (
     <button
-      className="px-2 py-1 rounded-md bg-gray-200 cursor-pointer hover:bg-gray-300"
+      className={cn(
+        "px-2 py-1 rounded-md bg-gray-200 cursor-pointer hover:bg-gray-300",
+        className,
+      )}
       onClick={onClick}
       type={type}
       disabled={disabled}

@@ -90,11 +90,17 @@ export function HomePage() {
         </div>
       </form>
 
-      {results.map((name) => (
-        <div key={name.name} className="p-1">
-          <NameResult name={name} />
-        </div>
-      ))}
+      <div
+        className="
+        mt-6
+        grid grid-cols-[auto_auto_auto] justify-center
+        @container
+        "
+      >
+        {results.map((name) => (
+          <NameResult key={name.name} name={name} />
+        ))}
+      </div>
     </AppLayout>
   );
 }

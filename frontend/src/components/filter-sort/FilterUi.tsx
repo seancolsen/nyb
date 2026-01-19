@@ -32,66 +32,66 @@ export function FilterUi({
   );
 
   return (
-    <li>
-      <div className="flex flex-col gap-2">
-        {match(filter, "type", {
-          textual: (textQuery) => (
-            <PhrasingContainer>
-              {filterTypeUi}
-              <SearchMethodUi
-                searchMethod={textQuery.method}
-                onChange={(method) =>
-                  onChange(buildTextFilter(textQuery.query, method))
-                }
-              />
-              <TextInput
-                value={textQuery.query}
-                onChange={(query) =>
-                  onChange(buildTextFilter(query.trim(), textQuery.method))
-                }
-              />
-            </PhrasingContainer>
-          ),
-
-          numerical: (statisticFilter) => (
-            <>
-              <div>
-                <PhrasingContainer>
-                  {filterTypeUi}
-                  <StatisticUi
-                    statistic={statisticFilter.statistic}
-                    hasMeasurementType={false}
-                    onChange={(statistic) =>
+    <li className="mb-4">
+      <div className="grid grid-flow-col gap-2 justify-between">
+        <div className="grid gap-2">
+          {match(filter, "type", {
+            textual: (textQuery) => (
+              <PhrasingContainer>
+                {filterTypeUi}
+                <SearchMethodUi
+                  searchMethod={textQuery.method}
+                  onChange={(method) =>
+                    onChange(buildTextFilter(textQuery.query, method))
+                  }
+                />
+                <TextInput
+                  value={textQuery.query}
+                  onChange={(query) =>
+                    onChange(buildTextFilter(query.trim(), textQuery.method))
+                  }
+                />
+              </PhrasingContainer>
+            ),
+            numerical: (statisticFilter) => (
+              <>
+                <div>
+                  <PhrasingContainer>
+                    {filterTypeUi}
+                    <StatisticUi
+                      statistic={statisticFilter.statistic}
+                      hasMeasurementType={false}
+                      onChange={(statistic) =>
+                        onChange(
+                          buildNumericalFilter(
+                            statistic,
+                            statisticFilter.comparison,
+                          ),
+                        )
+                      }
+                    />
+                  </PhrasingContainer>
+                </div>
+                <div>
+                  <ComparisonUi
+                    comparison={statisticFilter.comparison}
+                    onChange={(comparison) =>
                       onChange(
                         buildNumericalFilter(
-                          statistic,
-                          statisticFilter.comparison,
+                          statisticFilter.statistic,
+                          comparison,
                         ),
                       )
                     }
                   />
-                </PhrasingContainer>
-              </div>
-              <div>
-                <ComparisonUi
-                  comparison={statisticFilter.comparison}
-                  onChange={(comparison) =>
-                    onChange(
-                      buildNumericalFilter(
-                        statisticFilter.statistic,
-                        comparison,
-                      ),
-                    )
-                  }
-                />
-              </div>
-            </>
-          ),
-        })}
-      </div>
-
-      <div>
-        <Button onClick={onRemove}>Remove</Button>
+                </div>
+              </>
+            ),
+          })}
+        </div>
+        <div>
+          <Button onClick={onRemove}>Remove</Button>
+        </div>
       </div>
     </li>
   );

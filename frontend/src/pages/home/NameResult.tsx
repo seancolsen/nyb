@@ -11,10 +11,21 @@ export function NameResult({ name }: NameResultProps) {
   return (
     <Link
       to={`/${name.name}`}
-      className="grid grid-flow-col gap-2 items-center max-w-max hover:underline"
+      className="
+        grid grid-cols-subgrid col-span-full gap-x-2 items-center
+        px-2 py-1 rounded-l
+        hover:bg-violet-50
+        group
+      "
     >
       <NameHistoryChartMini shape={name.shape} />
-      <span className="text-xl">{name.name}</span>
+
+      <span className="text-xl group-hover:underline">{name.name}</span>
+
+      <div className="text-sm text-gray-400">
+        <span className="hidden @md:inline">Measurement: </span>
+        <span>0%</span>
+      </div>
     </Link>
   );
 }
