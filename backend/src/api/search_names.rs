@@ -9,10 +9,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::utils::QueryParamMap;
-use crate::{
-    AppState,
-    constants::{MAX_YEAR, MIN_YEAR},
-};
+use crate::{AppState, constants::MAX_YEAR};
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, Hash, PartialEq, Eq)]
 /// A newtype wrapper around `OrderedFloat<f64>`. Using this in our custom types allows us to
@@ -111,8 +108,9 @@ impl Default for Sort {
                 measurement: Measurement::Popularity {
                     gender_selection: GenderSelection::Both,
                 },
-                selection: Selection::OneYear {
-                    year: MAX_YEAR as u16,
+                year_range: YearRange {
+                    min: MAX_YEAR as u16,
+                    max: MAX_YEAR as u16,
                 },
             },
             direction: SortDirection::Desc,
@@ -142,7 +140,7 @@ impl std::fmt::Display for SortDirection {
 #[ts(export)]
 pub struct Statistic {
     pub measurement: Measurement,
-    pub selection: Selection,
+    pub year_range: YearRange,
 }
 
 #[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq)]
@@ -167,29 +165,6 @@ pub enum Measurement {
 }
 
 impl Measurement {
-    fn get_sql_expr(&self) -> &str {
-        match self {
-            Measurement::Popularity { gender_selection } => match gender_selection {
-                GenderSelection::F => "popularity_f",
-                GenderSelection::M => "popularity_m",
-                GenderSelection::Both => "popularity_both",
-            },
-            Measurement::DenseRank { gender_selection } => match gender_selection {
-                GenderSelection::F => "dense_rank_f",
-                GenderSelection::M => "dense_rank_m",
-                GenderSelection::Both => "dense_rank_both",
-            },
-            Measurement::Count { gender_selection } => match gender_selection {
-                GenderSelection::F => "count_f",
-                GenderSelection::M => "count_m",
-                GenderSelection::Both => "count_both",
-            },
-            Measurement::Masculinity => "((1.0 - gender_balance) / 2.0)",
-            Measurement::Femininity => "((gender_balance + 1.0 ) / 2.0)",
-            Measurement::GenderNeutrality => "gender_neutrality",
-        }
-    }
-
     fn get_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
         self.hash(&mut hasher);
@@ -206,41 +181,6 @@ pub enum GenderSelection {
     Both,
 }
 
-#[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
-#[serde(tag = "type", rename_all = "camelCase")]
-#[ts(export)]
-pub enum Selection {
-    #[serde(rename_all = "camelCase")]
-    OneYear { year: u16 },
-    #[serde(rename_all = "camelCase")]
-    ManyYears {
-        aggregate_function: AggregateFunction,
-        range: Range,
-    },
-}
-
-impl Selection {
-    pub fn get_range(&self) -> Range {
-        match self {
-            Selection::OneYear { year } => Range::Between {
-                min: *year,
-                max: *year,
-            },
-            Selection::ManyYears { range, .. } => *range,
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub enum AggregateFunction {
-    Ave,
-    Min,
-    Max,
-    Trend,
-}
-
 fn render_year_range_query(min_year_param: String, max_year_param: String) -> String {
     format!(
         concat!(
@@ -253,33 +193,21 @@ fn render_year_range_query(min_year_param: String, max_year_param: String) -> St
     )
 }
 
-#[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
-#[serde(tag = "type", rename_all = "camelCase")]
+#[derive(Deserialize, Serialize, TS, Hash, Eq, PartialEq, Copy, Clone)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
-pub enum Range {
-    #[serde(rename_all = "camelCase")]
-    Generation {
-        generation: Generation,
-    },
-    #[serde(rename_all = "camelCase")]
-    Previous {
-        previous: u8,
-    },
-    #[serde(rename_all = "camelCase")]
-    Between {
-        min: u16,
-        max: u16,
-    },
-    AllLivingPeople,
-    AllYears,
+pub struct YearRange {
+    min: u16,
+    max: u16,
 }
 
-impl Range {
-    /// If this range represents one year, return that year. Otherwise return None.
+impl YearRange {
+    /// If this YearRange represents one year, return that year. Otherwise return None.
     pub fn get_single_year(&self) -> Option<u16> {
-        match self {
-            Range::Between { min, max } if min == max => Some(*min),
-            _ => None,
+        if self.min == self.max {
+            Some(self.min)
+        } else {
+            None
         }
     }
 
@@ -291,54 +219,10 @@ impl Range {
     }
 
     pub fn gen_query(&self, params: &mut QueryParamMap) -> String {
-        match self {
-            Range::AllYears => render_year_range_query(
-                params.set(Box::new(MIN_YEAR)),
-                params.set(Box::new(MAX_YEAR)),
-            ),
-            Range::Between { min, max } => {
-                render_year_range_query(params.set(Box::new(*min)), params.set(Box::new(*max)))
-            }
-            Range::Previous { previous } => render_year_range_query(
-                params.set(Box::new(MAX_YEAR - *previous as usize)),
-                params.set(Box::new(MAX_YEAR)),
-            ),
-            Range::Generation { generation } => {
-                let (min, max) = generation.get_min_max_years();
-                render_year_range_query(params.set(Box::new(min)), params.set(Box::new(max)))
-            }
-
-            Range::AllLivingPeople => todo!(),
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, TS, Copy, Clone, Hash, Eq, PartialEq)]
-#[serde(rename_all = "camelCase")]
-#[ts(export)]
-pub enum Generation {
-    Lost,
-    Greatest,
-    Silent,
-    Boomer,
-    X,
-    Millennial,
-    Z,
-    Alpha,
-}
-
-impl Generation {
-    pub fn get_min_max_years(&self) -> (u16, u16) {
-        match self {
-            Generation::Lost => (MIN_YEAR as u16, 1900),
-            Generation::Greatest => (1901, 1927),
-            Generation::Silent => (1928, 1945),
-            Generation::Boomer => (1946, 1964),
-            Generation::X => (1965, 1980),
-            Generation::Millennial => (1981, 1996),
-            Generation::Z => (1997, 2012),
-            Generation::Alpha => (2013, MAX_YEAR as u16),
-        }
+        render_year_range_query(
+            params.set(Box::new(self.min)),
+            params.set(Box::new(self.max)),
+        )
     }
 }
 
@@ -395,45 +279,225 @@ struct Cte {
     sorting_expression: Option<(String, SortDirection)>,
 }
 
+const POPULARITY_BOTH: Measurement = Measurement::Popularity {
+    gender_selection: GenderSelection::Both,
+};
+const POPULARITY_F: Measurement = Measurement::Popularity {
+    gender_selection: GenderSelection::F,
+};
+const POPULARITY_M: Measurement = Measurement::Popularity {
+    gender_selection: GenderSelection::M,
+};
+const RANK_BOTH: Measurement = Measurement::DenseRank {
+    gender_selection: GenderSelection::Both,
+};
+const RANK_F: Measurement = Measurement::DenseRank {
+    gender_selection: GenderSelection::F,
+};
+const RANK_M: Measurement = Measurement::DenseRank {
+    gender_selection: GenderSelection::M,
+};
+const COUNT_BOTH: Measurement = Measurement::Count {
+    gender_selection: GenderSelection::Both,
+};
+const COUNT_F: Measurement = Measurement::Count {
+    gender_selection: GenderSelection::F,
+};
+const COUNT_M: Measurement = Measurement::Count {
+    gender_selection: GenderSelection::M,
+};
+const FEMININITY: Measurement = Measurement::Femininity;
+const MASCULINITY: Measurement = Measurement::Masculinity;
+const GENDER_NEUTRALITY: Measurement = Measurement::GenderNeutrality;
+
 fn build_cte(
     params: &mut QueryParamMap,
-    range: Range,
-    statistics: HashMap<Statistic, Purpose>,
+    year_range: YearRange,
+    mut measurements: HashMap<Measurement, Purpose>,
 ) -> Cte {
-    let name = range.gen_cte_name();
-    let single_year = range.get_single_year();
-    let is_multi_year = single_year.is_none();
+    let name = year_range.gen_cte_name();
+
+    // TODO return early if single year for perf
+    // let single_year = year_range.get_single_year();
+
     let mut sorting_expression: Option<(String, SortDirection)> = None;
     let mut filtering_expressions = Vec::<String>::new();
     let mut query = String::with_capacity(1000);
 
-    if is_multi_year {
-        query.push_str("WITH all_years AS (\n");
-        query.push_str(&range.gen_query(params));
-        query.push_str("\n)\n");
+    // Build measurement dependencies
+    {
+        if measurements.contains_key(&POPULARITY_BOTH) {
+            measurements.entry(RANK_BOTH).or_default();
+        }
+        if measurements.contains_key(&POPULARITY_F) {
+            measurements.entry(RANK_F).or_default();
+        }
+        if measurements.contains_key(&POPULARITY_M) {
+            measurements.entry(RANK_M).or_default();
+        }
+        if measurements.contains_key(&RANK_BOTH) {
+            measurements.entry(COUNT_BOTH).or_default();
+        }
+        if measurements.contains_key(&RANK_F) {
+            measurements.entry(COUNT_F).or_default();
+        }
+        if measurements.contains_key(&RANK_M) {
+            measurements.entry(COUNT_M).or_default();
+        }
+        if measurements.contains_key(&FEMININITY) {
+            measurements.entry(COUNT_F).or_default();
+            measurements.entry(COUNT_M).or_default();
+        }
+        if measurements.contains_key(&MASCULINITY) {
+            measurements.entry(COUNT_F).or_default();
+            measurements.entry(COUNT_M).or_default();
+        }
+        if measurements.contains_key(&GENDER_NEUTRALITY) {
+            measurements.entry(COUNT_F).or_default();
+            measurements.entry(COUNT_M).or_default();
+        }
     }
 
-    query.push_str("SELECT\n  name_year.name,");
+    query.push_str("WITH\n");
 
-    for (statistic, purpose) in statistics {
-        query.push_str("\n  ");
-        let e = format!("coalesce({}, 0.0)", statistic.measurement.get_sql_expr());
-        match statistic.selection {
-            Selection::OneYear { .. } => query.push_str(&e),
-            Selection::ManyYears {
-                aggregate_function, ..
-            } => match aggregate_function {
-                AggregateFunction::Ave => write!(&mut query, "avg({e})").unwrap(),
-                AggregateFunction::Min => write!(&mut query, "min({e})").unwrap(),
-                AggregateFunction::Max => write!(&mut query, "max({e})").unwrap(),
-                AggregateFunction::Trend => {
-                    write!(&mut query, "regr_slope({e}, name_year.year)").unwrap()
-                }
+    // `counts` CTE
+    let min_year = params.set(Box::new(year_range.min));
+    let max_year = params.set(Box::new(year_range.max));
+    query.push_str("  counts AS (\n");
+    query.push_str("    select\n");
+    query.push_str("      name_year.name as name,\n");
+    if measurements.contains_key(&COUNT_BOTH) {
+        query.push_str("      sum(count_both) AS count_both,\n");
+    }
+    if measurements.contains_key(&COUNT_F) {
+        query.push_str("      sum(count_f) AS count_f,\n");
+    }
+    if measurements.contains_key(&COUNT_M) {
+        query.push_str("      sum(count_m) AS count_m,\n");
+    }
+    query.push_str("    FROM name_year\n    WHERE\n");
+    write!(&mut query, "      name_year.year >= {min_year} AND\n").unwrap();
+    write!(&mut query, "      name_year.year <= {max_year}\n").unwrap();
+    query.push_str("    GROUP BY name_year.name\n  )");
+
+    let has_gender = measurements.contains_key(&FEMININITY)
+        || measurements.contains_key(&MASCULINITY)
+        || measurements.contains_key(&GENDER_NEUTRALITY);
+    let has_ranks = measurements.contains_key(&RANK_BOTH)
+        || measurements.contains_key(&RANK_F)
+        || measurements.contains_key(&RANK_M);
+    let has_popularity = measurements.contains_key(&POPULARITY_BOTH)
+        || measurements.contains_key(&POPULARITY_F)
+        || measurements.contains_key(&POPULARITY_M);
+
+    // `gender` CTE
+    if has_gender {
+        // Gender balance SQL expression
+        let bal = "(count_f - count_m) / (count_f + count_m)";
+        query.push_str(",\n");
+        query.push_str("  gender AS (\n");
+        query.push_str("    SELECT\n");
+        query.push_str("      name,\n");
+        if measurements.contains_key(&FEMININITY) {
+            write!(&mut query, "      (1.0+{bal})/2.0 AS femininity,\n").unwrap();
+        }
+        if measurements.contains_key(&MASCULINITY) {
+            write!(&mut query, "      (1.0-{bal})/2.0 AS masculinity,\n").unwrap();
+        }
+        if measurements.contains_key(&GENDER_NEUTRALITY) {
+            write!(&mut query, "      1.0-abs({bal}) AS gender_neutrality,\n").unwrap();
+        }
+        query.push_str("    FROM counts\n  )");
+    }
+
+    // `ranks` CTE
+    if has_ranks {
+        query.push_str(",\n");
+        query.push_str("  ranks AS (\n");
+        query.push_str("    SELECT\n");
+        query.push_str("      name,\n");
+        if measurements.contains_key(&RANK_BOTH) {
+            query.push_str(
+                "      dense_rank() OVER (ORDER BY count_both DESC) AS dense_rank_both,\n",
+            );
+        }
+        if measurements.contains_key(&RANK_F) {
+            query.push_str("      dense_rank() OVER (ORDER BY count_f DESC) AS dense_rank_f,\n");
+        }
+        if measurements.contains_key(&RANK_M) {
+            query.push_str("      dense_rank() OVER (ORDER BY count_m DESC) AS dense_rank_m,\n");
+        }
+        query.push_str("    FROM counts\n  )");
+    }
+
+    // `max_ranks` CTE + `popularity` CTE
+    if has_popularity {
+        query.push_str(",\n");
+        query.push_str("  max_ranks AS (\n");
+        query.push_str("    SELECT\n");
+        if measurements.contains_key(&POPULARITY_BOTH) {
+            query.push_str("      max(dense_rank_both) AS dense_rank_both_max,\n");
+        }
+        if measurements.contains_key(&POPULARITY_F) {
+            query.push_str("      max(dense_rank_f) AS dense_rank_f_max,\n");
+        }
+        if measurements.contains_key(&POPULARITY_M) {
+            query.push_str("      max(dense_rank_m) AS dense_rank_m_max,\n");
+        }
+        query.push_str("    FROM ranks\n  ),\n");
+
+        query.push_str("  popularity AS (\n");
+        query.push_str("    SELECT\n");
+        query.push_str("      name,\n");
+        if measurements.contains_key(&POPULARITY_BOTH) {
+            query.push_str("      1 - dense_rank_both / dense_rank_both_max as popularity_both,\n");
+        }
+        if measurements.contains_key(&POPULARITY_F) {
+            query.push_str("      1 - dense_rank_f / dense_rank_f_max as popularity_f,\n");
+        }
+        if measurements.contains_key(&POPULARITY_M) {
+            query.push_str("      m1 - dense_rank_m / dense_rank_m_max as popularity_m,\n");
+        }
+        query.push_str("    FROM ranks\n");
+        query.push_str("    CROSS JOIN max_ranks\n  )");
+    }
+
+    query.push_str("\n");
+
+    fn get_measurement_expr(measurement: &Measurement) -> &'static str {
+        match measurement {
+            Measurement::Popularity { gender_selection } => match gender_selection {
+                GenderSelection::Both => "popularity.popularity_both",
+                GenderSelection::F => "popularity.popularity_f",
+                GenderSelection::M => "popularity.popularity_m",
             },
+            Measurement::DenseRank { gender_selection } => match gender_selection {
+                GenderSelection::Both => "ranks.dense_rank_both",
+                GenderSelection::F => "ranks.dense_rank_f",
+                GenderSelection::M => "ranks.dense_rank_m",
+            },
+            Measurement::Count { gender_selection } => match gender_selection {
+                GenderSelection::Both => "counts.count_both",
+                GenderSelection::F => "counts.count_f",
+                GenderSelection::M => "counts.count_m",
+            },
+            Measurement::Masculinity => "gender.masculinity",
+            Measurement::Femininity => "gender.femininity",
+            Measurement::GenderNeutrality => "gender.gender_neutrality",
+        }
+    }
+
+    query.push_str("SELECT\n");
+    query.push_str("  counts.name as name,\n");
+
+    for (measurement, purpose) in measurements {
+        if purpose.sorting == None && purpose.filtering.len() == 0 {
+            continue;
         }
 
-        let hash = statistic.measurement.get_hash();
-        write!(&mut query, " AS _{hash},").unwrap();
+        let expr = get_measurement_expr(&measurement);
+        let hash = measurement.get_hash();
+        write!(&mut query, "  {expr} AS _{hash},\n").unwrap();
 
         let column = || format!("{name}._{hash}");
         if let Some(direction) = purpose.sorting {
@@ -452,19 +516,15 @@ fn build_cte(
         }
     }
 
-    if let Some(year) = single_year {
-        write!(
-            &mut query,
-            "\nFROM name_year\nWHERE name_year.year = {}",
-            params.set(Box::new(year))
-        )
-        .unwrap();
-    } else {
-        query.push_str(concat!(
-            "\nFROM all_years",
-            "\nLEFT JOIN name_year ON name_year.year = all_years.year",
-            "\nGROUP BY name_year.name",
-        ));
+    query.push_str("FROM counts");
+    if has_gender {
+        query.push_str("\nJOIN gender ON gender.name = counts.name");
+    }
+    if has_ranks {
+        query.push_str("\nJOIN ranks ON ranks.name = counts.name");
+    }
+    if has_popularity {
+        query.push_str("\nJOIN popularity ON popularity.name = counts.name");
     }
 
     Cte {
@@ -492,17 +552,17 @@ pub async fn search_names(
     }
 
     let range_map = {
-        let mut map = HashMap::<Range, HashMap<Statistic, Purpose>>::new();
+        let mut map = HashMap::<YearRange, HashMap<Measurement, Purpose>>::new();
         for filter in statistic_filters {
-            map.entry(filter.statistic.selection.get_range())
+            map.entry(filter.statistic.year_range)
                 .or_default()
-                .entry(filter.statistic)
+                .entry(filter.statistic.measurement)
                 .or_default()
                 .add_filter(filter.comparison)
         }
-        map.entry(sort.statistic.selection.get_range())
+        map.entry(sort.statistic.year_range)
             .or_default()
-            .entry(sort.statistic)
+            .entry(sort.statistic.measurement)
             .or_default()
             .sorting = Some(sort.direction);
         map
@@ -516,7 +576,7 @@ pub async fn search_names(
 
     let ctes: Vec<Cte> = range_map
         .into_iter()
-        .map(|(range, statistics)| build_cte(&mut params, range, statistics))
+        .map(|(year_range, statistics)| build_cte(&mut params, year_range, statistics))
         .collect();
 
     let has_ctes = !ctes.is_empty();
