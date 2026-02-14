@@ -1,4 +1,5 @@
 import type { Measurement } from "@/api_types/Measurement";
+import { PhrasingConst } from "@/components/general-purpose/PhrasingConst";
 
 import { GenderSelectionUi } from "./GenderSelectionUi";
 import { getGenderSelection, buildMeasurement } from "./measurement.utils";
@@ -23,7 +24,7 @@ export function MeasurementUi({
           onChange={(type) => onChange(buildMeasurement(type, genderSelection))}
         />
       )}
-
+      <PhrasingConst>for</PhrasingConst>
       {genderSelection && (
         <GenderSelectionUi
           genderSelection={genderSelection}

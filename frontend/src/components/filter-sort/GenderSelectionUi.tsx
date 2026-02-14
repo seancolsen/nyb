@@ -7,9 +7,9 @@ interface GenderSelectionUiProps {
 }
 
 const options: Record<GenderSelection, string> = {
-  f: "for girls",
-  m: "for boys",
-  both: "for everyone",
+  f: "girls",
+  m: "boys",
+  both: "everyone",
 };
 
 export function GenderSelectionUi({
