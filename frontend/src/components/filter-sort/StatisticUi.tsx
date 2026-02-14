@@ -1,7 +1,7 @@
 import type { Statistic } from "@/api_types/Statistic";
 
 import { MeasurementUi } from "./MeasurementUi";
-import { SelectionUi } from "./SelectionUi";
+import { YearRangeUi } from "./YearRangeUi";
 import { buildStatistic } from "./statistic.utils";
 
 export function StatisticUi({
@@ -19,13 +19,13 @@ export function StatisticUi({
         measurement={statistic.measurement}
         hasMeasurementType={hasMeasurementType}
         onChange={(measurement) =>
-          onChange(buildStatistic(measurement, statistic.selection))
+          onChange(buildStatistic(measurement, statistic.yearRange))
         }
       />
-      <SelectionUi
-        selection={statistic.selection}
-        onChange={(selection) =>
-          onChange(buildStatistic(statistic.measurement, selection))
+      <YearRangeUi
+        yearRange={statistic.yearRange}
+        onChange={(yearRange) =>
+          onChange(buildStatistic(statistic.measurement, yearRange))
         }
       />
     </>
