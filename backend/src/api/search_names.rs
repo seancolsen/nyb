@@ -456,7 +456,7 @@ fn build_cte(
             query.push_str("      1 - dense_rank_f / dense_rank_f_max as popularity_f,\n");
         }
         if measurements.contains_key(&POPULARITY_M) {
-            query.push_str("      m1 - dense_rank_m / dense_rank_m_max as popularity_m,\n");
+            query.push_str("      1 - dense_rank_m / dense_rank_m_max as popularity_m,\n");
         }
         query.push_str("    FROM ranks\n");
         query.push_str("    CROSS JOIN max_ranks\n  )");
